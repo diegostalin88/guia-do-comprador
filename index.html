@@ -394,33 +394,53 @@ function picker(rootId,key,opts){
       <div class="m">${c.zero?"0 km":"Ano "+(c.ano||"?")}${c.mes?" · FIPE "+esc(c.mes):""}</div><div class="v num">${c.fipe?brl(c.fipe):"sem FIPE"}</div></div></div>
       <button class="link" type="button" data-act="trocar">Trocar de carro</button>`;return;}
     root.innerHTML=`<div class="field"><span class="lbl">Marca</span><div class="input"><input class="txt" data-f="marca" placeholder="Digite a marca (ex.: nis)" autocomplete="off" enterkeyhint="search"></div><div class="sugs" data-s="marca" hidden></div></div>
-      <div class="field"><span class="lbl">Modelo</span><div class="input"><input class="txt" data-f="modelo" placeholder="Escolha a marca primeiro" autocomplete="off" enterkeyhint="search" disabled></div><div class="sugs" data-s="modelo" hidden></div></div>
       <div class="field" data-w="anos" hidden><span class="lbl">Ano-modelo</span><div class="chips" data-s="anos"></div></div>
+      <div class="field" data-w="modelo" hidden><span class="lbl">Modelo</span><div class="input"><input class="txt" data-f="modelo" placeholder="Digite o modelo (ex.: kicks sense)" autocomplete="off" enterkeyhint="search"></div><div class="sugs" data-s="modelo" hidden></div></div>
+      <div class="field" data-w="comb" hidden><span class="lbl">Versão de combustível</span><div class="chips" data-s="comb"></div></div>
       <div class="err" data-e hidden></div>
       <button class="link" type="button" data-act="manual">Não achou? Digitar a FIPE à mão</button>`;
-    let marcaSel=null,modelos=[];
-    const q=s=>root.querySelector(s), err=m=>{const e=q("[data-e]");e.hidden=false;e.textContent=m;};
-    const mi=q('[data-f="marca"]'),ms=q('[data-s="marca"]'),oi=q('[data-f="modelo"]'),os=q('[data-s="modelo"]');
+    let marcaSel=null,todos=[],anosMarca=[],anoSel=null,modelos=[];
+    const q=s=>root.querySelector(s), err=m=>{const e=q("[data-e]");e.hidden=!m;e.textContent=m||"";};
+    const mi=q('[data-f="marca"]'),ms=q('[data-s="marca"]'),oi=q('[data-f="modelo"]'),os=q('[data-s="modelo"]'),ach=q('[data-s="anos"]'),cch=q('[data-s="comb"]');
+    const anoNum=c=>String(c).split("-")[0];
+    const lista=r=>(Array.isArray(r)?r:(r&&(r.modelos||r.models))||[]).map(m=>({codigo:String(m.codigo??m.code),nome:m.nome??m.name}));
     async function showMarcas(){let list;try{list=await loadMarcas();}catch(e){err("Não consegui falar com a tabela FIPE agora. Use \"Digitar a FIPE à mão\".");return;}
       const t=mi.value.trim(),hits=list.filter(m=>norm(m.nome).includes(norm(t))).slice(0,12);
       ms.innerHTML=hits.map(m=>`<button type="button" data-id="${esc(m.codigo)}" data-n="${esc(m.nome)}">${hilite(m.nome,t)}</button>`).join("")||`<button type="button" disabled>Nenhuma marca com esse nome</button>`;ms.hidden=false;}
-    mi.addEventListener("focus",showMarcas);mi.addEventListener("input",()=>{marcaSel=null;oi.disabled=true;oi.value="";showMarcas();});
-    ms.addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;marcaSel={id:b.dataset.id,nome:b.dataset.n};mi.value=b.dataset.n;ms.hidden=true;
-      oi.placeholder="Carregando modelos…";try{const r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos`);modelos=r.modelos||[];oi.disabled=false;oi.placeholder="Digite o modelo (ex.: kicks sense)";oi.focus();showModelos();}
-      catch(x){err("Não consegui carregar os modelos.");}});
+    mi.addEventListener("focus",showMarcas);
+    mi.addEventListener("input",()=>{marcaSel=null;q('[data-w="anos"]').hidden=true;q('[data-w="modelo"]').hidden=true;q('[data-w="comb"]').hidden=true;showMarcas();});
+    /* 1) marca -> lista de anos */
+    ms.addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;marcaSel={id:b.dataset.id,nome:b.dataset.n};mi.value=b.dataset.n;ms.hidden=true;err("");
+      ach.innerHTML=`<span class="note">Carregando anos…</span>`;q('[data-w="anos"]').hidden=false;q('[data-w="modelo"]').hidden=true;q('[data-w="comb"]').hidden=true;
+      try{const r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos`);todos=lista(r);anosMarca=(r.anos||[]).map(a=>({codigo:String(a.codigo),nome:a.nome}));
+        let anos=[...new Set(anosMarca.map(a=>anoNum(a.codigo)))];if(opts.semZero)anos=anos.filter(a=>a!=="32000");
+        anos.sort((a,b)=>(b==="32000")-(a==="32000")||b-a);
+        ach.innerHTML=anos.map(a=>`<button class="chip" type="button" data-y="${a}">${a==="32000"?"0 km":a}</button>`).join("")||`<span class="note">Sem anos disponíveis.</span>`;}
+      catch(x){err("Não consegui carregar os anos dessa marca.");}});
+    /* 2) ano -> só os modelos daquele ano */
+    ach.addEventListener("click",async e=>{const c=e.target.closest("[data-y]");if(!c)return;ach.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c));
+      anoSel=c.dataset.y;err("");q('[data-w="comb"]').hidden=true;q('[data-w="modelo"]').hidden=false;oi.value="";oi.placeholder="Carregando modelos…";oi.disabled=true;
+      const cods=anosMarca.filter(a=>anoNum(a.codigo)===anoSel).map(a=>a.codigo),mapa=new Map();let falhou=0;
+      await Promise.all(cods.map(async cod=>{let r=null;
+        try{r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/anos/${cod}/modelos`);}catch(x){}
+        if(!lista(r).length){try{r=await getJSON(`https://fipe.parallelum.com.br/api/v2/cars/brands/${marcaSel.id}/years/${cod}/models`);}catch(x){r=null;}}
+        const l=lista(r);if(!l.length)falhou++;l.forEach(m=>mapa.set(m.codigo,m));}));
+      modelos=mapa.size?[...mapa.values()]:todos;
+      oi.disabled=false;oi.placeholder=`Digite o modelo (${modelos.length} em ${anoSel==="32000"?"0 km":anoSel})`;oi.focus();showModelos();});
     function showModelos(){const t=oi.value.trim(),w=norm(t).split(/\s+/).filter(Boolean),hits=modelos.filter(m=>w.every(x=>norm(m.nome).includes(x))).slice(0,40);
-      os.innerHTML=hits.map(m=>`<button type="button" data-id="${esc(m.codigo)}">${hilite(m.nome,t)}</button>`).join("")||`<button type="button" disabled>Nenhum modelo com esse nome</button>`;os.hidden=false;}
+      os.innerHTML=hits.map(m=>`<button type="button" data-id="${esc(m.codigo)}">${hilite(m.nome,t)}</button>`).join("")||`<button type="button" disabled>Nenhum modelo com esse nome nesse ano</button>`;os.hidden=false;}
     oi.addEventListener("focus",()=>{if(!oi.disabled)showModelos();});oi.addEventListener("input",showModelos);
-    os.addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;oi.value=b.textContent;os.hidden=true;const mod=b.dataset.id;
-      try{const anos=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos/${mod}/anos`);const ch=q('[data-s="anos"]');
-        const list=opts.semZero?anos.filter(a=>!a.codigo.startsWith("32000")):anos;
-        ch.innerHTML=list.map(a=>`<button class="chip" type="button" data-a="${esc(a.codigo)}">${esc(a.codigo.startsWith("32000")?"0 km":a.nome)}</button>`).join("")||`<span class="note">Sem anos disponíveis.</span>`;
-        q('[data-w="anos"]').hidden=false;
-        ch.onclick=async ev=>{const c=ev.target.closest("[data-a]");if(!c)return;ch.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c));
-          try{const r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos/${mod}/anos/${c.dataset.a}`);const zero=String(r.AnoModelo)==="32000";
-            S[key]={nome:`${r.Marca} ${r.Modelo}`,fipe:parse(r.Valor),ano:zero?0:r.AnoModelo,zero,mes:(r.MesReferencia||"").trim(),codigo:r.CodigoFipe||""};
-            persist();render();opts.onPick&&opts.onPick();}catch(x){err("Não consegui buscar o valor FIPE.");}};}
-      catch(x){err("Não consegui carregar os anos.");}});
+    async function valor(mod,cod){try{const r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos/${mod}/anos/${cod}`);const zero=String(r.AnoModelo)==="32000";
+      S[key]={nome:`${r.Marca} ${r.Modelo}`,fipe:parse(r.Valor),ano:zero?0:r.AnoModelo,zero,mes:(r.MesReferencia||"").trim(),codigo:r.CodigoFipe||""};
+      persist();render();opts.onPick&&opts.onPick();}catch(x){err("Não consegui buscar o valor FIPE.");}}
+    /* 3) modelo -> valor FIPE (pergunta o combustível só se tiver mais de um) */
+    os.addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;oi.value=b.textContent;os.hidden=true;const mod=b.dataset.id;err("");
+      try{const anos=(await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos/${mod}/anos`)).filter(a=>anoNum(a.codigo)===anoSel);
+        if(!anos.length){err("Esse modelo não tem FIPE nesse ano. Escolha outro ano.");return;}
+        if(anos.length===1)return valor(mod,anos[0].codigo);
+        cch.innerHTML=anos.map(a=>`<button class="chip" type="button" data-a="${esc(a.codigo)}">${esc(String(a.nome).replace(/^\d+\s*/,"")||a.codigo)}</button>`).join("");q('[data-w="comb"]').hidden=false;
+        cch.onclick=ev=>{const c=ev.target.closest("[data-a]");if(c)valor(mod,c.dataset.a);};}
+      catch(x){err("Não consegui carregar esse modelo.");}});
     document.addEventListener("click",ev=>{if(!root.contains(ev.target)){ms.hidden=true;os.hidden=true;}},{capture:true});
   };
   root.addEventListener("click",e=>{const a=e.target.closest("[data-act]");if(!a)return;
