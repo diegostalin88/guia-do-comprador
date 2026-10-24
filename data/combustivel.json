@@ -1,8 +1,1714 @@
 {
-  "ref": "2026-07",
-  "fonte": "ANP, levantamento semanal de preços (valor inicial; o robô atualiza toda semana)",
-  "atualizado_em": "valor inicial",
-  "nacional": {"gasolina": 6.65, "etanol": 4.20},
-  "uf": {"PE": {"gasolina": 6.94, "etanol": 5.12}},
-  "municipios": {"RECIFE/PE": {"gasolina": 6.94, "etanol": 5.12}}
+ "ref": "2026-10-17",
+ "fonte": "ANP, levantamento semanal de preços de revenda",
+ "atualizado_em": "2026-10-24",
+ "nacional": {
+  "gasolina": 6.72,
+  "etanol": 4.71
+ },
+ "uf": {
+  "AC": {
+   "etanol": 4.9,
+   "gasolina": 7.44
+  },
+  "AL": {
+   "etanol": 4.94,
+   "gasolina": 6.66
+  },
+  "AP": {
+   "etanol": 5.81,
+   "gasolina": 6.52
+  },
+  "AM": {
+   "etanol": 5.25,
+   "gasolina": 7.31
+  },
+  "BA": {
+   "etanol": 4.58,
+   "gasolina": 6.75
+  },
+  "CE": {
+   "etanol": 4.98,
+   "gasolina": 6.96
+  },
+  "DF": {
+   "etanol": 4.48,
+   "gasolina": 6.64
+  },
+  "ES": {
+   "etanol": 4.68,
+   "gasolina": 6.43
+  },
+  "GO": {
+   "etanol": 4.07,
+   "gasolina": 6.55
+  },
+  "MA": {
+   "etanol": 4.92,
+   "gasolina": 6.58
+  },
+  "MT": {
+   "etanol": 4.13,
+   "gasolina": 6.85
+  },
+  "MS": {
+   "etanol": 4.0,
+   "gasolina": 6.43
+  },
+  "MG": {
+   "etanol": 4.26,
+   "gasolina": 6.33
+  },
+  "PA": {
+   "etanol": 4.52,
+   "gasolina": 6.54
+  },
+  "PB": {
+   "etanol": 4.55,
+   "gasolina": 6.38
+  },
+  "PR": {
+   "etanol": 4.2,
+   "gasolina": 6.58
+  },
+  "PE": {
+   "etanol": 4.95,
+   "gasolina": 6.9
+  },
+  "PI": {
+   "etanol": 4.82,
+   "gasolina": 6.76
+  },
+  "RJ": {
+   "etanol": 4.76,
+   "gasolina": 6.61
+  },
+  "RN": {
+   "etanol": 4.85,
+   "gasolina": 6.45
+  },
+  "RS": {
+   "etanol": 4.51,
+   "gasolina": 6.21
+  },
+  "RO": {
+   "etanol": 5.09,
+   "gasolina": 7.43
+  },
+  "RR": {
+   "etanol": 5.38,
+   "gasolina": 7.56
+  },
+  "SC": {
+   "etanol": 4.52,
+   "gasolina": 6.43
+  },
+  "SP": {
+   "etanol": 3.86,
+   "gasolina": 6.36
+  },
+  "SE": {
+   "etanol": 5.25,
+   "gasolina": 6.93
+  },
+  "TO": {
+   "etanol": 5.0,
+   "gasolina": 6.92
+  }
+ },
+ "municipios": {
+  "ACAILANDIA/MA": {
+   "etanol": 5.01,
+   "gasolina": 6.75
+  },
+  "ADAMANTINA/SP": {
+   "etanol": 3.44,
+   "gasolina": 6.36
+  },
+  "AGUAS LINDAS DE GOIAS/GO": {
+   "etanol": 4.61,
+   "gasolina": 6.79
+  },
+  "ALAGOINHAS/BA": {
+   "etanol": 4.28,
+   "gasolina": 6.23
+  },
+  "ALEGRETE/RS": {
+   "etanol": 4.99,
+   "gasolina": 6.67
+  },
+  "ALENQUER/PA": {
+   "etanol": 4.99,
+   "gasolina": 7.34
+  },
+  "ALFENAS/MG": {
+   "etanol": 4.12,
+   "gasolina": 6.44
+  },
+  "ALTA FLORESTA/MT": {
+   "etanol": 4.04,
+   "gasolina": 7.07
+  },
+  "ALTAMIRA/PA": {
+   "etanol": 5.64,
+   "gasolina": 7.34
+  },
+  "ALVORADA/RS": {
+   "etanol": 4.64,
+   "gasolina": 6.23
+  },
+  "AMERICANA/SP": {
+   "etanol": 3.86,
+   "gasolina": 6.42
+  },
+  "ANANINDEUA/PA": {
+   "etanol": 4.23,
+   "gasolina": 6.14
+  },
+  "ANAPOLIS/GO": {
+   "etanol": 4.47,
+   "gasolina": 6.69
+  },
+  "ANGRA DOS REIS/RJ": {
+   "etanol": 5.59,
+   "gasolina": 7.12
+  },
+  "APARECIDA DE GOIANIA/GO": {
+   "etanol": 3.91,
+   "gasolina": 6.39
+  },
+  "APUCARANA/PR": {
+   "etanol": 4.34,
+   "gasolina": 6.74
+  },
+  "ARACAJU/SE": {
+   "etanol": 5.25,
+   "gasolina": 6.94
+  },
+  "ARACATUBA/SP": {
+   "etanol": 3.5,
+   "gasolina": 6.24
+  },
+  "ARAGUAINA/TO": {
+   "etanol": 4.83,
+   "gasolina": 6.75
+  },
+  "ARAGUARI/MG": {
+   "etanol": 3.99,
+   "gasolina": 6.08
+  },
+  "ARAPIRACA/AL": {
+   "etanol": 4.88,
+   "gasolina": 6.55
+  },
+  "ARAPONGAS/PR": {
+   "etanol": 4.07,
+   "gasolina": 6.38
+  },
+  "ARARANGUA/SC": {
+   "etanol": 4.94,
+   "gasolina": 6.42
+  },
+  "ARARAQUARA/SP": {
+   "etanol": 3.7,
+   "gasolina": 6.1
+  },
+  "ARARAS/SP": {
+   "etanol": 3.68,
+   "gasolina": 6.36
+  },
+  "ARARIPINA/PE": {
+   "etanol": 4.99,
+   "gasolina": 7.18
+  },
+  "ARARUAMA/RJ": {
+   "etanol": 4.98,
+   "gasolina": 6.93
+  },
+  "ARAUCARIA/PR": {
+   "etanol": 4.39,
+   "gasolina": 6.64
+  },
+  "ARAXA/MG": {
+   "etanol": 4.23,
+   "gasolina": 6.32
+  },
+  "ARCOVERDE/PE": {
+   "etanol": 5.23,
+   "gasolina": 6.67
+  },
+  "ASSIS/SP": {
+   "etanol": 4.04,
+   "gasolina": 6.62
+  },
+  "ATIBAIA/SP": {
+   "etanol": 4.41,
+   "gasolina": 6.7
+  },
+  "AVARE/SP": {
+   "etanol": 3.82,
+   "gasolina": 6.41
+  },
+  "BAGE/RS": {
+   "etanol": 5.34,
+   "gasolina": 7.37
+  },
+  "BALSAS/MA": {
+   "etanol": 5.38,
+   "gasolina": 7.34
+  },
+  "BARBACENA/MG": {
+   "etanol": 4.31,
+   "gasolina": 6.58
+  },
+  "BARRA DO CORDA/MA": {
+   "etanol": 5.55,
+   "gasolina": 6.72
+  },
+  "BARRA DO PIRAI/RJ": {
+   "etanol": 5.09,
+   "gasolina": 6.93
+  },
+  "BARRA MANSA/RJ": {
+   "etanol": 4.72,
+   "gasolina": 6.63
+  },
+  "BARREIRAS/BA": {
+   "etanol": 4.03,
+   "gasolina": 6.82
+  },
+  "BARRETOS/SP": {
+   "etanol": 3.73,
+   "gasolina": 6.49
+  },
+  "BARUERI/SP": {
+   "etanol": 4.13,
+   "gasolina": 6.69
+  },
+  "BAURU/SP": {
+   "etanol": 3.58,
+   "gasolina": 6.19
+  },
+  "BAYEUX/PB": {
+   "etanol": 4.47,
+   "gasolina": 6.24
+  },
+  "BEBEDOURO/SP": {
+   "etanol": 3.67,
+   "gasolina": 6.39
+  },
+  "BELEM/PA": {
+   "etanol": 4.31,
+   "gasolina": 6.39
+  },
+  "BELFORD ROXO/RJ": {
+   "etanol": 4.66,
+   "gasolina": 6.48
+  },
+  "BELO HORIZONTE/MG": {
+   "etanol": 4.38,
+   "gasolina": 6.41
+  },
+  "BELO JARDIM/PE": {
+   "etanol": 4.79,
+   "gasolina": 6.46
+  },
+  "BENTO GONCALVES/RS": {
+   "etanol": 4.73,
+   "gasolina": 6.28
+  },
+  "BETIM/MG": {
+   "etanol": 4.27,
+   "gasolina": 6.28
+  },
+  "BIRIGUI/SP": {
+   "etanol": 3.62,
+   "gasolina": 6.48
+  },
+  "BLUMENAU/SC": {
+   "etanol": 4.21,
+   "gasolina": 6.5
+  },
+  "BOA VISTA/RR": {
+   "etanol": 5.38,
+   "gasolina": 7.56
+  },
+  "BOM DESPACHO/MG": {
+   "etanol": 4.05,
+   "gasolina": 6.16
+  },
+  "BOTUCATU/SP": {
+   "etanol": 3.85,
+   "gasolina": 6.14
+  },
+  "BRAGANCA PAULISTA/SP": {
+   "etanol": 3.92,
+   "gasolina": 6.32
+  },
+  "BRASILIA/DF": {
+   "etanol": 4.48,
+   "gasolina": 6.64
+  },
+  "BRUMADO/BA": {
+   "etanol": 4.49,
+   "gasolina": 6.66
+  },
+  "BRUSQUE/SC": {
+   "etanol": 4.41,
+   "gasolina": 6.36
+  },
+  "CABEDELO/PB": {
+   "etanol": 4.7,
+   "gasolina": 6.39
+  },
+  "CABO DE SANTO AGOSTINHO/PE": {
+   "etanol": 4.92,
+   "gasolina": 6.96
+  },
+  "CABO FRIO/RJ": {
+   "etanol": 5.04,
+   "gasolina": 6.87
+  },
+  "CACADOR/SC": {
+   "etanol": 4.84,
+   "gasolina": 6.49
+  },
+  "CACAPAVA/SP": {
+   "etanol": 4.2,
+   "gasolina": 6.43
+  },
+  "CACERES/MT": {
+   "etanol": 4.15,
+   "gasolina": 6.69
+  },
+  "CACHOEIRA DO SUL/RS": {
+   "etanol": 4.39,
+   "gasolina": 5.98
+  },
+  "CACHOEIRINHA/RS": {
+   "etanol": 4.39,
+   "gasolina": 6.08
+  },
+  "CACHOEIRO DE ITAPEMIRIM/ES": {
+   "etanol": 4.83,
+   "gasolina": 7.12
+  },
+  "CACOAL/RO": {
+   "etanol": 5.18,
+   "gasolina": 7.35
+  },
+  "CAETITE/BA": {
+   "etanol": 4.68,
+   "gasolina": 7.19
+  },
+  "CAICO/RN": {
+   "etanol": 6.03,
+   "gasolina": 7.0
+  },
+  "CALDAS NOVAS/GO": {
+   "etanol": 3.94,
+   "gasolina": 6.66
+  },
+  "CAMBE/PR": {
+   "etanol": 3.96,
+   "gasolina": 6.56
+  },
+  "CAMPINA GRANDE/PB": {
+   "etanol": 4.68,
+   "gasolina": 6.49
+  },
+  "CAMPINAS/SP": {
+   "etanol": 3.97,
+   "gasolina": 6.45
+  },
+  "CAMPO BELO/MG": {
+   "etanol": 4.16,
+   "gasolina": 6.25
+  },
+  "CAMPO GRANDE/MS": {
+   "etanol": 3.93,
+   "gasolina": 6.27
+  },
+  "CAMPO LARGO/PR": {
+   "etanol": 4.2,
+   "gasolina": 6.54
+  },
+  "CAMPO MOURAO/PR": {
+   "etanol": 3.77,
+   "gasolina": 6.11
+  },
+  "CAMPOS DOS GOYTACAZES/RJ": {
+   "etanol": 4.85,
+   "gasolina": 6.65
+  },
+  "CANINDE/CE": {
+   "etanol": 5.34,
+   "gasolina": 6.84
+  },
+  "CANOAS/RS": {
+   "etanol": 4.31,
+   "gasolina": 6.09
+  },
+  "CARAGUATATUBA/SP": {
+   "etanol": 4.46,
+   "gasolina": 6.83
+  },
+  "CARAPICUIBA/SP": {
+   "etanol": 3.9,
+   "gasolina": 6.31
+  },
+  "CARATINGA/MG": {
+   "etanol": 4.18,
+   "gasolina": 6.37
+  },
+  "CARIACICA/ES": {
+   "etanol": 4.5,
+   "gasolina": 6.27
+  },
+  "CARUARU/PE": {
+   "etanol": 4.8,
+   "gasolina": 6.76
+  },
+  "CASCAVEL/PR": {
+   "etanol": 4.02,
+   "gasolina": 6.35
+  },
+  "CASTANHAL/PA": {
+   "etanol": 4.75,
+   "gasolina": 6.48
+  },
+  "CASTRO/PR": {
+   "etanol": 4.82,
+   "gasolina": 6.94
+  },
+  "CATALAO/GO": {
+   "etanol": 4.1,
+   "gasolina": 6.4
+  },
+  "CATANDUVA/SP": {
+   "etanol": 3.74,
+   "gasolina": 6.4
+  },
+  "CAUCAIA/CE": {
+   "etanol": 4.89,
+   "gasolina": 6.84
+  },
+  "CAXIAS DO SUL/RS": {
+   "etanol": 4.36,
+   "gasolina": 6.09
+  },
+  "CHAPECO/SC": {
+   "etanol": 5.1,
+   "gasolina": 6.5
+  },
+  "CIANORTE/PR": {
+   "etanol": 3.65,
+   "gasolina": 5.92
+  },
+  "CODO/MA": {
+   "etanol": 5.48,
+   "gasolina": 7.25
+  },
+  "COLATINA/ES": {
+   "etanol": 4.86,
+   "gasolina": 6.69
+  },
+  "COLOMBO/PR": {
+   "etanol": 4.56,
+   "gasolina": 6.77
+  },
+  "CONCEICAO DO ARAGUAIA/PA": {
+   "etanol": 5.62,
+   "gasolina": 7.03
+  },
+  "CONCORDIA/SC": {
+   "etanol": 5.15,
+   "gasolina": 6.59
+  },
+  "CONGONHAS/MG": {
+   "etanol": 4.22,
+   "gasolina": 6.34
+  },
+  "CONSELHEIRO LAFAIETE/MG": {
+   "etanol": 4.2,
+   "gasolina": 6.55
+  },
+  "CONTAGEM/MG": {
+   "etanol": 4.37,
+   "gasolina": 6.37
+  },
+  "CORNELIO PROCOPIO/PR": {
+   "etanol": 4.4,
+   "gasolina": 6.71
+  },
+  "CORONEL FABRICIANO/MG": {
+   "etanol": 4.23,
+   "gasolina": 6.3
+  },
+  "CORUMBA/MS": {
+   "etanol": 4.91,
+   "gasolina": 7.09
+  },
+  "COSMOPOLIS/SP": {
+   "etanol": 3.93,
+   "gasolina": 6.21
+  },
+  "COTIA/SP": {
+   "etanol": 3.93,
+   "gasolina": 6.29
+  },
+  "CRATEUS/CE": {
+   "etanol": 5.8,
+   "gasolina": 6.55
+  },
+  "CRICIUMA/SC": {
+   "etanol": 4.66,
+   "gasolina": 6.36
+  },
+  "CRUZ ALTA/RS": {
+   "etanol": 4.55,
+   "gasolina": 6.25
+  },
+  "CRUZEIRO/SP": {
+   "etanol": 3.95,
+   "gasolina": 6.21
+  },
+  "CRUZEIRO DO SUL/AC": {
+   "etanol": 6.39,
+   "gasolina": 8.23
+  },
+  "CUBATAO/SP": {
+   "etanol": 4.52,
+   "gasolina": 6.88
+  },
+  "CUIABA/MT": {
+   "etanol": 4.22,
+   "gasolina": 7.09
+  },
+  "CURITIBA/PR": {
+   "etanol": 4.64,
+   "gasolina": 6.78
+  },
+  "CURVELO/MG": {
+   "etanol": 4.2,
+   "gasolina": 6.45
+  },
+  "DELMIRO GOUVEIA/AL": {
+   "etanol": 5.35,
+   "gasolina": 7.6
+  },
+  "DIADEMA/SP": {
+   "etanol": 3.92,
+   "gasolina": 6.29
+  },
+  "DIVINOPOLIS/MG": {
+   "etanol": 4.07,
+   "gasolina": 6.06
+  },
+  "DOURADOS/MS": {
+   "etanol": 4.14,
+   "gasolina": 6.68
+  },
+  "DUQUE DE CAXIAS/RJ": {
+   "etanol": 4.7,
+   "gasolina": 6.47
+  },
+  "EMBU DAS ARTES/SP": {
+   "etanol": 4.09,
+   "gasolina": 6.46
+  },
+  "ERECHIM/RS": {
+   "etanol": 5.25,
+   "gasolina": 6.27
+  },
+  "ESTEIO/RS": {
+   "etanol": 4.44,
+   "gasolina": 6.17
+  },
+  "EUNAPOLIS/BA": {
+   "etanol": 4.88,
+   "gasolina": 6.99
+  },
+  "FLORIANOPOLIS/SC": {
+   "etanol": 4.71,
+   "gasolina": 6.7
+  },
+  "FORMIGA/MG": {
+   "etanol": 4.07,
+   "gasolina": 6.21
+  },
+  "FORMOSA/GO": {
+   "etanol": 4.4,
+   "gasolina": 6.48
+  },
+  "FORTALEZA/CE": {
+   "etanol": 4.94,
+   "gasolina": 6.98
+  },
+  "FOZ DO IGUACU/PR": {
+   "etanol": 3.92,
+   "gasolina": 6.49
+  },
+  "FRANCA/SP": {
+   "etanol": 3.8,
+   "gasolina": 6.6
+  },
+  "FRANCISCO BELTRAO/PR": {
+   "etanol": 4.15,
+   "gasolina": 6.28
+  },
+  "FRUTAL/MG": {
+   "etanol": 3.78,
+   "gasolina": 6.17
+  },
+  "GARANHUNS/PE": {
+   "etanol": 4.69,
+   "gasolina": 6.42
+  },
+  "GARCA/SP": {
+   "etanol": 3.68,
+   "gasolina": 6.27
+  },
+  "GOIANA/PE": {
+   "etanol": 4.93,
+   "gasolina": 6.95
+  },
+  "GOIANIA/GO": {
+   "etanol": 4.0,
+   "gasolina": 6.61
+  },
+  "GOIATUBA/GO": {
+   "etanol": 3.56,
+   "gasolina": 5.77
+  },
+  "GOVERNADOR VALADARES/MG": {
+   "etanol": 4.05,
+   "gasolina": 6.09
+  },
+  "GRAMADO/RS": {
+   "etanol": 5.11,
+   "gasolina": 6.65
+  },
+  "GRAVATAI/RS": {
+   "etanol": 4.29,
+   "gasolina": 6.23
+  },
+  "GUAIBA/RS": {
+   "etanol": 4.54,
+   "gasolina": 6.04
+  },
+  "GUANAMBI/BA": {
+   "etanol": 4.42,
+   "gasolina": 6.78
+  },
+  "GUARAPARI/ES": {
+   "etanol": 5.72,
+   "gasolina": 6.99
+  },
+  "GUARAPUAVA/PR": {
+   "etanol": 3.85,
+   "gasolina": 5.85
+  },
+  "GUARATINGUETA/SP": {
+   "etanol": 4.11,
+   "gasolina": 6.52
+  },
+  "GUARUJA/SP": {
+   "etanol": 4.37,
+   "gasolina": 6.78
+  },
+  "GUARULHOS/SP": {
+   "etanol": 3.85,
+   "gasolina": 6.34
+  },
+  "GUAXUPE/MG": {
+   "etanol": 3.99,
+   "gasolina": 6.29
+  },
+  "GURUPI/TO": {
+   "etanol": 4.99,
+   "gasolina": 7.15
+  },
+  "HORTOLANDIA/SP": {
+   "etanol": 3.9,
+   "gasolina": 6.4
+  },
+  "IBITINGA/SP": {
+   "etanol": 3.9,
+   "gasolina": 6.4
+  },
+  "ICO/CE": {
+   "etanol": 5.65,
+   "gasolina": 7.11
+  },
+  "IGARASSU/PE": {
+   "etanol": 4.95,
+   "gasolina": 6.95
+  },
+  "IGUATU/CE": {
+   "etanol": 5.17,
+   "gasolina": 7.3
+  },
+  "IJUI/RS": {
+   "etanol": 5.08,
+   "gasolina": 6.3
+  },
+  "ILHEUS/BA": {
+   "etanol": 4.5,
+   "gasolina": 6.86
+  },
+  "IMPERATRIZ/MA": {
+   "etanol": 5.23,
+   "gasolina": 6.47
+  },
+  "INDAIATUBA/SP": {
+   "etanol": 3.75,
+   "gasolina": 6.25
+  },
+  "IPATINGA/MG": {
+   "etanol": 4.42,
+   "gasolina": 6.4
+  },
+  "IPIRA/BA": {
+   "etanol": 4.49,
+   "gasolina": 6.37
+  },
+  "ITABAIANA/SE": {
+   "etanol": 5.39,
+   "gasolina": 6.9
+  },
+  "ITABORAI/RJ": {
+   "etanol": 4.75,
+   "gasolina": 6.54
+  },
+  "ITABUNA/BA": {
+   "etanol": 4.57,
+   "gasolina": 6.95
+  },
+  "ITAJAI/SC": {
+   "etanol": 4.33,
+   "gasolina": 6.67
+  },
+  "ITAJUBA/MG": {
+   "etanol": 4.28,
+   "gasolina": 6.45
+  },
+  "ITAMARAJU/BA": {
+   "etanol": 4.7,
+   "gasolina": 6.99
+  },
+  "ITANHAEM/SP": {
+   "etanol": 4.24,
+   "gasolina": 6.75
+  },
+  "ITAPECERICA DA SERRA/SP": {
+   "etanol": 3.96,
+   "gasolina": 6.36
+  },
+  "ITAPERUNA/RJ": {
+   "etanol": 4.78,
+   "gasolina": 6.73
+  },
+  "ITAPETININGA/SP": {
+   "etanol": 3.78,
+   "gasolina": 6.23
+  },
+  "ITAPEVA/SP": {
+   "etanol": 3.84,
+   "gasolina": 6.44
+  },
+  "ITAPIPOCA/CE": {
+   "etanol": 5.73,
+   "gasolina": 7.48
+  },
+  "ITAPIRA/SP": {
+   "etanol": 4.15,
+   "gasolina": 6.69
+  },
+  "ITAPOLIS/SP": {
+   "etanol": 3.64,
+   "gasolina": 6.17
+  },
+  "ITAQUAQUECETUBA/SP": {
+   "etanol": 3.83,
+   "gasolina": 6.31
+  },
+  "ITATIBA/SP": {
+   "etanol": 3.88,
+   "gasolina": 6.29
+  },
+  "ITAUNA/MG": {
+   "etanol": 4.13,
+   "gasolina": 6.17
+  },
+  "ITU/SP": {
+   "etanol": 3.77,
+   "gasolina": 6.33
+  },
+  "ITUIUTABA/MG": {
+   "etanol": 3.96,
+   "gasolina": 6.07
+  },
+  "ITUMBIARA/GO": {
+   "etanol": 3.87,
+   "gasolina": 6.39
+  },
+  "JABOATAO DOS GUARARAPES/PE": {
+   "etanol": 4.88,
+   "gasolina": 6.93
+  },
+  "JACAREI/SP": {
+   "etanol": 3.85,
+   "gasolina": 6.14
+  },
+  "JACOBINA/BA": {
+   "etanol": 4.52,
+   "gasolina": 6.73
+  },
+  "JAGUAQUARA/BA": {
+   "etanol": 4.7,
+   "gasolina": 6.67
+  },
+  "JALES/SP": {
+   "etanol": 3.82,
+   "gasolina": 6.55
+  },
+  "JANAUBA/MG": {
+   "etanol": 4.1,
+   "gasolina": 6.32
+  },
+  "JANUARIA/MG": {
+   "etanol": 4.27,
+   "gasolina": 6.51
+  },
+  "JAU/SP": {
+   "etanol": 3.83,
+   "gasolina": 6.47
+  },
+  "JEQUIE/BA": {
+   "etanol": 4.43,
+   "gasolina": 6.58
+  },
+  "JI-PARANA/RO": {
+   "etanol": 4.99,
+   "gasolina": 7.29
+  },
+  "JOAO MONLEVADE/MG": {
+   "etanol": 4.35,
+   "gasolina": 6.34
+  },
+  "JOAO PESSOA/PB": {
+   "etanol": 4.47,
+   "gasolina": 6.29
+  },
+  "JOAO PINHEIRO/MG": {
+   "etanol": 4.03,
+   "gasolina": 6.25
+  },
+  "JOINVILLE/SC": {
+   "etanol": 4.2,
+   "gasolina": 6.02
+  },
+  "JUAZEIRO/BA": {
+   "etanol": 5.16,
+   "gasolina": 7.15
+  },
+  "JUAZEIRO DO NORTE/CE": {
+   "etanol": 5.19,
+   "gasolina": 6.74
+  },
+  "JUIZ DE FORA/MG": {
+   "etanol": 4.51,
+   "gasolina": 6.61
+  },
+  "JUNDIAI/SP": {
+   "etanol": 4.01,
+   "gasolina": 6.4
+  },
+  "LAGARTO/SE": {
+   "etanol": 5.19,
+   "gasolina": 6.9
+  },
+  "LAGUNA/SC": {
+   "etanol": 4.59,
+   "gasolina": 6.43
+  },
+  "LAJEADO/RS": {
+   "etanol": 4.99,
+   "gasolina": 6.09
+  },
+  "LAJEDO/PE": {
+   "etanol": 5.32,
+   "gasolina": 6.46
+  },
+  "LAVRAS/MG": {
+   "etanol": 4.18,
+   "gasolina": 6.24
+  },
+  "LEME/SP": {
+   "etanol": 4.08,
+   "gasolina": 6.42
+  },
+  "LEOPOLDINA/MG": {
+   "etanol": 4.8,
+   "gasolina": 6.83
+  },
+  "LIMEIRA/SP": {
+   "etanol": 3.81,
+   "gasolina": 6.26
+  },
+  "LIMOEIRO DO NORTE/CE": {
+   "etanol": 5.42,
+   "gasolina": 6.89
+  },
+  "LINHARES/ES": {
+   "etanol": 4.59,
+   "gasolina": 6.62
+  },
+  "LINS/SP": {
+   "etanol": 3.5,
+   "gasolina": 6.46
+  },
+  "LONDRINA/PR": {
+   "etanol": 3.85,
+   "gasolina": 6.46
+  },
+  "LORENA/SP": {
+   "etanol": 4.08,
+   "gasolina": 6.51
+  },
+  "LUZIANIA/GO": {
+   "etanol": 4.39,
+   "gasolina": 6.63
+  },
+  "MACAPA/AP": {
+   "etanol": 5.81,
+   "gasolina": 6.49
+  },
+  "MACEIO/AL": {
+   "etanol": 4.94,
+   "gasolina": 6.65
+  },
+  "MAFRA/SC": {
+   "etanol": 4.39,
+   "gasolina": 6.38
+  },
+  "MANACAPURU/AM": {
+   "etanol": 4.96,
+   "gasolina": 6.97
+  },
+  "MANAUS/AM": {
+   "etanol": 5.25,
+   "gasolina": 7.28
+  },
+  "MARABA/PA": {
+   "etanol": 4.98,
+   "gasolina": 6.63
+  },
+  "MARICA/RJ": {
+   "etanol": 4.7,
+   "gasolina": 6.62
+  },
+  "MARILIA/SP": {
+   "etanol": 3.53,
+   "gasolina": 5.89
+  },
+  "MARINGA/PR": {
+   "etanol": 4.24,
+   "gasolina": 6.89
+  },
+  "MATAO/SP": {
+   "etanol": 3.96,
+   "gasolina": 6.4
+  },
+  "MAUA/SP": {
+   "etanol": 4.02,
+   "gasolina": 6.43
+  },
+  "MINEIROS/GO": {
+   "etanol": 4.55,
+   "gasolina": 6.79
+  },
+  "MOCOCA/SP": {
+   "etanol": 4.23,
+   "gasolina": 6.73
+  },
+  "MOGI DAS CRUZES/SP": {
+   "etanol": 3.95,
+   "gasolina": 6.39
+  },
+  "MOGI GUACU/SP": {
+   "etanol": 3.8,
+   "gasolina": 6.32
+  },
+  "MOGI MIRIM/SP": {
+   "etanol": 3.75,
+   "gasolina": 6.2
+  },
+  "MONTE ALTO/SP": {
+   "etanol": 3.86,
+   "gasolina": 6.61
+  },
+  "MONTES CLAROS/MG": {
+   "etanol": 3.99,
+   "gasolina": 5.98
+  },
+  "MORRINHOS/GO": {
+   "etanol": 4.23,
+   "gasolina": 6.74
+  },
+  "MOSSORO/RN": {
+   "etanol": 4.86,
+   "gasolina": 6.52
+  },
+  "NATAL/RN": {
+   "etanol": 4.83,
+   "gasolina": 6.38
+  },
+  "NILOPOLIS/RJ": {
+   "etanol": 4.53,
+   "gasolina": 6.46
+  },
+  "NITEROI/RJ": {
+   "etanol": 4.68,
+   "gasolina": 6.57
+  },
+  "NOSSA SENHORA DO SOCORRO/SE": {
+   "etanol": 5.26,
+   "gasolina": 6.97
+  },
+  "NOVA FRIBURGO/RJ": {
+   "etanol": 5.0,
+   "gasolina": 7.03
+  },
+  "NOVA IGUACU/RJ": {
+   "etanol": 4.67,
+   "gasolina": 6.45
+  },
+  "NOVO HAMBURGO/RS": {
+   "etanol": 4.34,
+   "gasolina": 6.16
+  },
+  "OLIMPIA/SP": {
+   "etanol": 3.62,
+   "gasolina": 6.3
+  },
+  "OLINDA/PE": {
+   "etanol": 4.94,
+   "gasolina": 6.95
+  },
+  "OLIVEIRA/MG": {
+   "etanol": 4.09,
+   "gasolina": 6.2
+  },
+  "OSASCO/SP": {
+   "etanol": 3.94,
+   "gasolina": 6.37
+  },
+  "OSORIO/RS": {
+   "etanol": 4.41,
+   "gasolina": 6.16
+  },
+  "OURINHOS/SP": {
+   "etanol": 4.15,
+   "gasolina": 6.7
+  },
+  "OURO PRETO/MG": {
+   "etanol": 4.3,
+   "gasolina": 6.25
+  },
+  "PALMAS/TO": {
+   "etanol": 5.1,
+   "gasolina": 6.98
+  },
+  "PALMEIRA DOS INDIOS/AL": {
+   "etanol": 4.84,
+   "gasolina": 6.65
+  },
+  "PARA DE MINAS/MG": {
+   "etanol": 4.08,
+   "gasolina": 6.3
+  },
+  "PARACATU/MG": {
+   "etanol": 3.98,
+   "gasolina": 6.24
+  },
+  "PARAGOMINAS/PA": {
+   "etanol": 5.05,
+   "gasolina": 6.99
+  },
+  "PARAGUACU PAULISTA/SP": {
+   "etanol": 3.59,
+   "gasolina": 6.06
+  },
+  "PARAISO DO TOCANTINS/TO": {
+   "etanol": 5.12,
+   "gasolina": 6.94
+  },
+  "PARANAVAI/PR": {
+   "etanol": 3.9,
+   "gasolina": 6.53
+  },
+  "PARAUAPEBAS/PA": {
+   "etanol": 4.81,
+   "gasolina": 6.81
+  },
+  "PARNAIBA/PI": {
+   "etanol": 4.64,
+   "gasolina": 6.6
+  },
+  "PARNAMIRIM/RN": {
+   "etanol": 4.79,
+   "gasolina": 6.39
+  },
+  "PASSO FUNDO/RS": {
+   "etanol": 4.69,
+   "gasolina": 6.42
+  },
+  "PASSOS/MG": {
+   "etanol": 4.05,
+   "gasolina": 6.08
+  },
+  "PATO BRANCO/PR": {
+   "etanol": 4.21,
+   "gasolina": 6.49
+  },
+  "PATOS/PB": {
+   "etanol": 4.93,
+   "gasolina": 6.66
+  },
+  "PATROCINIO/MG": {
+   "etanol": 4.37,
+   "gasolina": 6.55
+  },
+  "PAULINIA/SP": {
+   "etanol": 3.78,
+   "gasolina": 6.21
+  },
+  "PAULISTA/PE": {
+   "etanol": 4.94,
+   "gasolina": 6.94
+  },
+  "PAULO AFONSO/BA": {
+   "etanol": 4.77,
+   "gasolina": 6.55
+  },
+  "PELOTAS/RS": {
+   "etanol": 4.89,
+   "gasolina": 6.6
+  },
+  "PETROLINA/PE": {
+   "etanol": 5.28,
+   "gasolina": 7.25
+  },
+  "PETROPOLIS/RJ": {
+   "etanol": 5.39,
+   "gasolina": 7.1
+  },
+  "PICOS/PI": {
+   "etanol": 5.16,
+   "gasolina": 6.64
+  },
+  "PIMENTA BUENO/RO": {
+   "etanol": 5.49,
+   "gasolina": 7.38
+  },
+  "PINHEIRO/MA": {
+   "etanol": 5.59,
+   "gasolina": 7.04
+  },
+  "PIRACICABA/SP": {
+   "etanol": 3.71,
+   "gasolina": 6.2
+  },
+  "PIRASSUNUNGA/SP": {
+   "etanol": 3.78,
+   "gasolina": 6.34
+  },
+  "PIRIPIRI/PI": {
+   "etanol": 4.96,
+   "gasolina": 6.63
+  },
+  "POA/SP": {
+   "etanol": 4.05,
+   "gasolina": 6.67
+  },
+  "POCOES/BA": {
+   "etanol": 4.46,
+   "gasolina": 6.57
+  },
+  "POCOS DE CALDAS/MG": {
+   "etanol": 4.18,
+   "gasolina": 6.51
+  },
+  "PONTA GROSSA/PR": {
+   "etanol": 4.1,
+   "gasolina": 6.19
+  },
+  "PONTA PORA/MS": {
+   "etanol": 4.01,
+   "gasolina": 6.73
+  },
+  "PORTO ALEGRE/RS": {
+   "etanol": 4.44,
+   "gasolina": 5.96
+  },
+  "PORTO FERREIRA/SP": {
+   "etanol": 4.05,
+   "gasolina": 6.7
+  },
+  "PORTO NACIONAL/TO": {
+   "etanol": 4.74,
+   "gasolina": 6.76
+  },
+  "PORTO SEGURO/BA": {
+   "etanol": 5.08,
+   "gasolina": 7.23
+  },
+  "PORTO VELHO/RO": {
+   "etanol": 5.05,
+   "gasolina": 7.49
+  },
+  "PRAIA GRANDE/SP": {
+   "etanol": 4.42,
+   "gasolina": 6.71
+  },
+  "PRESIDENTE DUTRA/MA": {
+   "etanol": 5.42,
+   "gasolina": 6.77
+  },
+  "PRESIDENTE PRUDENTE/SP": {
+   "etanol": 3.51,
+   "gasolina": 6.39
+  },
+  "QUIXADA/CE": {
+   "etanol": 4.95,
+   "gasolina": 6.64
+  },
+  "RECIFE/PE": {
+   "etanol": 4.96,
+   "gasolina": 6.97
+  },
+  "RESENDE/RJ": {
+   "etanol": 4.55,
+   "gasolina": 6.53
+  },
+  "RIBEIRAO PIRES/SP": {
+   "etanol": 4.06,
+   "gasolina": 6.49
+  },
+  "RIBEIRAO PRETO/SP": {
+   "etanol": 3.93,
+   "gasolina": 6.69
+  },
+  "RIO BONITO/RJ": {
+   "etanol": 4.71,
+   "gasolina": 6.71
+  },
+  "RIO BRANCO/AC": {
+   "etanol": 4.82,
+   "gasolina": 7.27
+  },
+  "RIO CLARO/SP": {
+   "etanol": 3.67,
+   "gasolina": 6.13
+  },
+  "RIO DE JANEIRO/RJ": {
+   "etanol": 4.74,
+   "gasolina": 6.53
+  },
+  "RIO LARGO/AL": {
+   "etanol": 4.99,
+   "gasolina": 6.69
+  },
+  "RIO VERDE/GO": {
+   "etanol": 3.92,
+   "gasolina": 6.43
+  },
+  "RONDONOPOLIS/MT": {
+   "etanol": 3.95,
+   "gasolina": 6.55
+  },
+  "SABARA/MG": {
+   "etanol": 4.36,
+   "gasolina": 6.33
+  },
+  "SALGUEIRO/PE": {
+   "etanol": 5.58,
+   "gasolina": 7.01
+  },
+  "SALTO/SP": {
+   "etanol": 3.79,
+   "gasolina": 6.18
+  },
+  "SALVADOR/BA": {
+   "etanol": 4.6,
+   "gasolina": 6.65
+  },
+  "SANTA CRUZ DO CAPIBARIBE/PE": {
+   "etanol": 5.06,
+   "gasolina": 6.85
+  },
+  "SANTA MARIA/RS": {
+   "etanol": 4.78,
+   "gasolina": 6.2
+  },
+  "SANTA ROSA/RS": {
+   "etanol": 4.98,
+   "gasolina": 6.59
+  },
+  "SANTANA DO LIVRAMENTO/RS": {
+   "etanol": 5.61,
+   "gasolina": 6.87
+  },
+  "SANTO ANDRE/SP": {
+   "etanol": 3.91,
+   "gasolina": 6.32
+  },
+  "SANTO ANGELO/RS": {
+   "etanol": 5.03,
+   "gasolina": 6.7
+  },
+  "SANTO ANTONIO DE JESUS/BA": {
+   "etanol": 4.92,
+   "gasolina": 6.93
+  },
+  "SANTO ANTONIO DE PADUA/RJ": {
+   "etanol": 4.55,
+   "gasolina": 6.49
+  },
+  "SANTOS/SP": {
+   "etanol": 4.18,
+   "gasolina": 6.44
+  },
+  "SAO BERNARDO DO CAMPO/SP": {
+   "etanol": 4.08,
+   "gasolina": 6.59
+  },
+  "SAO CAETANO DO SUL/SP": {
+   "etanol": 4.06,
+   "gasolina": 6.44
+  },
+  "SAO CARLOS/SP": {
+   "etanol": 3.71,
+   "gasolina": 6.32
+  },
+  "SAO GABRIEL/RS": {
+   "etanol": 4.89,
+   "gasolina": 6.41
+  },
+  "SAO GONCALO/RJ": {
+   "etanol": 4.79,
+   "gasolina": 6.57
+  },
+  "SAO JOAO DA BOA VISTA/SP": {
+   "etanol": 4.01,
+   "gasolina": 6.37
+  },
+  "SAO JOAO DE MERITI/RJ": {
+   "etanol": 4.6,
+   "gasolina": 6.38
+  },
+  "SAO JOAO DEL REI/MG": {
+   "etanol": 4.33,
+   "gasolina": 6.45
+  },
+  "SAO JOSE/SC": {
+   "etanol": 4.74,
+   "gasolina": 6.67
+  },
+  "SAO JOSE DE RIBAMAR/MA": {
+   "etanol": 4.75,
+   "gasolina": 6.42
+  },
+  "SAO JOSE DO RIO PRETO/SP": {
+   "etanol": 3.44,
+   "gasolina": 6.32
+  },
+  "SAO JOSE DOS CAMPOS/SP": {
+   "etanol": 3.86,
+   "gasolina": 6.08
+  },
+  "SAO LEOPOLDO/RS": {
+   "etanol": 4.47,
+   "gasolina": 6.19
+  },
+  "SAO LUIS/MA": {
+   "etanol": 4.8,
+   "gasolina": 6.45
+  },
+  "SAO LUIZ GONZAGA/RS": {
+   "etanol": 4.91,
+   "gasolina": 6.53
+  },
+  "SAO MATEUS/ES": {
+   "etanol": 4.91,
+   "gasolina": 6.65
+  },
+  "SAO PAULO/SP": {
+   "etanol": 3.91,
+   "gasolina": 6.34
+  },
+  "SAO SEBASTIAO DO PARAISO/MG": {
+   "etanol": 4.17,
+   "gasolina": 6.2
+  },
+  "SAO VICENTE/SP": {
+   "etanol": 4.15,
+   "gasolina": 6.57
+  },
+  "SAPIRANGA/RS": {
+   "etanol": 4.45,
+   "gasolina": 6.2
+  },
+  "SAPUCAIA DO SUL/RS": {
+   "etanol": 4.31,
+   "gasolina": 6.15
+  },
+  "SAQUAREMA/RJ": {
+   "etanol": 4.94,
+   "gasolina": 6.89
+  },
+  "SENHOR DO BONFIM/BA": {
+   "etanol": 4.79,
+   "gasolina": 6.87
+  },
+  "SERRA/ES": {
+   "etanol": 4.68,
+   "gasolina": 6.19
+  },
+  "SERRA TALHADA/PE": {
+   "etanol": 5.26,
+   "gasolina": 6.51
+  },
+  "SERRINHA/BA": {
+   "etanol": 4.27,
+   "gasolina": 6.7
+  },
+  "SERTAOZINHO/SP": {
+   "etanol": 3.75,
+   "gasolina": 6.57
+  },
+  "SETE LAGOAS/MG": {
+   "etanol": 3.92,
+   "gasolina": 5.91
+  },
+  "SINOP/MT": {
+   "etanol": 3.89,
+   "gasolina": 6.58
+  },
+  "SOBRAL/CE": {
+   "etanol": 5.49,
+   "gasolina": 7.13
+  },
+  "SOROCABA/SP": {
+   "etanol": 3.76,
+   "gasolina": 6.32
+  },
+  "SORRISO/MT": {
+   "etanol": 3.96,
+   "gasolina": 6.87
+  },
+  "SOUSA/PB": {
+   "etanol": 5.35,
+   "gasolina": 6.68
+  },
+  "SUMARE/SP": {
+   "etanol": 3.81,
+   "gasolina": 6.26
+  },
+  "SUZANO/SP": {
+   "etanol": 3.7,
+   "gasolina": 6.2
+  },
+  "TABOAO DA SERRA/SP": {
+   "etanol": 4.01,
+   "gasolina": 6.33
+  },
+  "TATUI/SP": {
+   "etanol": 3.98,
+   "gasolina": 6.33
+  },
+  "TAUBATE/SP": {
+   "etanol": 3.71,
+   "gasolina": 5.95
+  },
+  "TEIXEIRA DE FREITAS/BA": {
+   "etanol": 4.76,
+   "gasolina": 7.05
+  },
+  "TEOFILO OTONI/MG": {
+   "etanol": 3.94,
+   "gasolina": 5.94
+  },
+  "TERESINA/PI": {
+   "etanol": 4.83,
+   "gasolina": 6.8
+  },
+  "TIMOTEO/MG": {
+   "etanol": 4.27,
+   "gasolina": 6.3
+  },
+  "TOLEDO/PR": {
+   "etanol": 4.03,
+   "gasolina": 6.45
+  },
+  "TORRES/RS": {
+   "etanol": 4.79,
+   "gasolina": 6.25
+  },
+  "TRES CORACOES/MG": {
+   "etanol": 4.59,
+   "gasolina": 6.75
+  },
+  "TRES LAGOAS/MS": {
+   "etanol": 4.07,
+   "gasolina": 6.55
+  },
+  "TRES RIOS/RJ": {
+   "etanol": 5.25,
+   "gasolina": 6.8
+  },
+  "TRINDADE/GO": {
+   "etanol": 3.75,
+   "gasolina": 6.19
+  },
+  "TUBARAO/SC": {
+   "etanol": 4.58,
+   "gasolina": 6.0
+  },
+  "TUPA/SP": {
+   "etanol": 3.69,
+   "gasolina": 6.46
+  },
+  "UBATUBA/SP": {
+   "etanol": 4.29,
+   "gasolina": 6.6
+  },
+  "UBERABA/MG": {
+   "etanol": 3.88,
+   "gasolina": 6.01
+  },
+  "UBERLANDIA/MG": {
+   "etanol": 4.42,
+   "gasolina": 6.52
+  },
+  "UMUARAMA/PR": {
+   "etanol": 4.02,
+   "gasolina": 6.46
+  },
+  "UNAI/MG": {
+   "etanol": 3.95,
+   "gasolina": 6.22
+  },
+  "UNIAO DA VITORIA/PR": {
+   "etanol": 4.72,
+   "gasolina": 6.85
+  },
+  "VACARIA/RS": {
+   "etanol": 4.75,
+   "gasolina": 6.47
+  },
+  "VALENCA/RJ": {
+   "etanol": 4.9,
+   "gasolina": 6.73
+  },
+  "VALENCA/BA": {
+   "etanol": 4.99,
+   "gasolina": 7.04
+  },
+  "VALINHOS/SP": {
+   "etanol": 3.91,
+   "gasolina": 6.4
+  },
+  "VALPARAISO DE GOIAS/GO": {
+   "etanol": 4.27,
+   "gasolina": 6.5
+  },
+  "VARGINHA/MG": {
+   "etanol": 4.02,
+   "gasolina": 6.06
+  },
+  "VARZEA GRANDE/MT": {
+   "etanol": 4.18,
+   "gasolina": 6.99
+  },
+  "VARZEA PAULISTA/SP": {
+   "etanol": 4.0,
+   "gasolina": 6.24
+  },
+  "VIAMAO/RS": {
+   "etanol": 4.65,
+   "gasolina": 5.94
+  },
+  "VICOSA/MG": {
+   "etanol": 4.33,
+   "gasolina": 6.6
+  },
+  "VIDEIRA/SC": {
+   "etanol": 5.24,
+   "gasolina": 6.54
+  },
+  "VILA VELHA/ES": {
+   "etanol": 4.57,
+   "gasolina": 6.24
+  },
+  "VILHENA/RO": {
+   "etanol": 5.2,
+   "gasolina": 7.44
+  },
+  "VINHEDO/SP": {
+   "etanol": 3.97,
+   "gasolina": 6.31
+  },
+  "VITORIA/ES": {
+   "etanol": 4.54,
+   "gasolina": 6.18
+  },
+  "VITORIA DA CONQUISTA/BA": {
+   "etanol": 4.32,
+   "gasolina": 6.54
+  },
+  "VITORIA DE SANTO ANTAO/PE": {
+   "etanol": 4.78,
+   "gasolina": 6.68
+  },
+  "VOLTA REDONDA/RJ": {
+   "etanol": 5.02,
+   "gasolina": 6.89
+  },
+  "VOTORANTIM/SP": {
+   "etanol": 3.67,
+   "gasolina": 6.24
+  },
+  "VOTUPORANGA/SP": {
+   "etanol": 3.47,
+   "gasolina": 6.39
+  },
+  "XANXERE/SC": {
+   "etanol": 4.76,
+   "gasolina": 6.26
+  },
+  "ABAETETUBA/PA": {
+   "gasolina": 6.92
+  },
+  "ARACRUZ/ES": {
+   "gasolina": 6.69
+  },
+  "BACABAL/MA": {
+   "gasolina": 6.48
+  },
+  "PARINTINS/AM": {
+   "gasolina": 8.99
+  },
+  "SANTA CRUZ DO SUL/RS": {
+   "gasolina": 6.59
+  },
+  "SANTANA/AP": {
+   "gasolina": 6.7
+  },
+  "URUGUAIANA/RS": {
+   "gasolina": 6.44
+  }
+ }
 }
