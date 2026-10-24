@@ -9,7 +9,6 @@ Dependência: openpyxl.
 import io, json, re, sys, datetime, pathlib, unicodedata, urllib.request
 
 PAGINAS = [
-    "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/levantamento-do-precos-de-combustiveis-ultimas-semanas-pesquisadas",
     "https://www.gov.br/anp/pt-br/assuntos/precos-e-defesa-da-concorrencia/precos/precos-revenda-e-de-distribuicao-combustiveis/serie-historica-do-levantamento-de-precos",
 ]
 ARQ = pathlib.Path(__file__).resolve().parent.parent / "data" / "combustivel.json"
@@ -26,18 +25,25 @@ def baixar(url):
     with urllib.request.urlopen(urllib.request.Request(url, headers=HDR), timeout=60) as r:
         return r.read()
 
-def achar_xlsx():
+def listar_xlsx():
+    links = []
     for pag in PAGINAS:
         try:
             html = baixar(pag).decode("utf-8", "ignore")
         except Exception as e:  # noqa: BLE001
             print(f"[aviso] não abri {pag}: {e}")
             continue
-        links = re.findall(r'href="([^"]+\.xlsx[^"]*)"', html, flags=re.I)
-        semanais = [l for l in links if re.search(r"semanal|resumo|lpc", l, re.I)]
-        for l in semanais or links:
-            return l if l.startswith("http") else "https://www.gov.br" + l
-    return None
+        for l in re.findall(r'href="([^"]+\.xlsx[^"]*)"', html, flags=re.I):
+            links.append(l if l.startswith("http") else "https://www.gov.br" + l)
+    return list(dict.fromkeys(links))
+
+def mais_recente(links, palavra):
+    """Escolhe o arquivo semanal de 'estados' ou 'municipios' com o ano final mais alto."""
+    cand = [l for l in links if "semanal" in l.lower() and palavra in sem_acento(l).lower()]
+    def ano_final(l):
+        anos = [int(a) for a in re.findall(r"(20\d\d)", l)]
+        return max(anos) if anos else 0
+    return max(cand, key=ano_final) if cand else None
 
 def ler_aba(ws):
     linhas = list(ws.iter_rows(values_only=True))
@@ -64,18 +70,32 @@ def main():
         import openpyxl
     except ImportError:
         print("[aviso] openpyxl não instalado"); return 0
-    url = achar_xlsx()
-    if not url:
-        print("[aviso] não encontrei a planilha semanal da ANP; mantendo dados anteriores"); return 0
-    print(f"[info] planilha: {url}")
-    try:
-        wb = openpyxl.load_workbook(io.BytesIO(baixar(url)), read_only=True, data_only=True)
-    except Exception as e:  # noqa: BLE001
-        print(f"[aviso] não consegui ler a planilha: {e}"); return 0
+    links = listar_xlsx()
+    print(f"[info] {len(links)} planilhas encontradas na ANP")
+    alvos = [u for u in (mais_recente(links, "estados"), mais_recente(links, "municipios")) if u]
+    if not alvos:
+        print("[aviso] não encontrei as planilhas semanais de estados/municípios; mantendo dados anteriores")
+        for l in links[:15]:
+            print("   -", l)
+        return 0
+    linhas = []
+    for url in alvos:
+        print(f"[info] lendo {url}")
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(baixar(url)), read_only=True, data_only=True)
+            rows = [r for ws in wb.worksheets for r in ler_aba(ws)]
+        except Exception as e:  # noqa: BLE001
+            print(f"[aviso] não consegui ler: {e}"); continue
+        datas = [r["fim"] for r in rows if isinstance(r["fim"], (datetime.date, datetime.datetime))]
+        if datas:
+            ult = max(datas)
+            rows = [r for r in rows if r["fim"] == ult]
+        print(f"[info] {len(rows)} linhas da semana mais recente")
+        linhas += rows
     atual = json.loads(ARQ.read_text(encoding="utf-8"))
     uf, mun, ref = {}, {}, None
-    for ws in wb.worksheets:
-        for r in ler_aba(ws):
+    if True:
+        for r in linhas:
             prod = "gasolina" if r["produto"] in ("GASOLINA COMUM", "GASOLINA") else "etanol" if r["produto"].startswith("ETANOL") else None
             sigla = UF.get(r["estado"]) or (r["estado"] if len(r["estado"]) == 2 else None)
             if not prod or not sigla:
