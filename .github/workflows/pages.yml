@@ -27,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/configure-pages@v5
       - name: Montar pasta do site
-        run: mkdir -p _site && cp -r index.html data _site/
+        run: mkdir -p _site && cp -r index.html data manifest.webmanifest sw.js icons _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
