@@ -1,0 +1,19 @@
+{
+  "ref": "2026-10",
+  "nota": "Custos de uso por modelo. Consumo: Inmetro/PBEV com gasolina (cidade/estrada). Revisões: soma das 6 primeiras (até 60 mil km). Itens com est=true são estimativas.",
+  "padrao": {"cid": 11.0, "est": 13.5, "rev60": 5500, "seguro_pct": 2.2, "est_flag": true},
+  "modelos": [
+    {"chaves": ["kicks"], "nome": "Nissan Kicks 1.0 Turbo", "cid": 11.7, "est": 14.3, "rev60": 4944, "est_flag": false},
+    {"chaves": ["kait"], "nome": "Nissan Kait 1.6", "cid": 11.3, "est": 13.7, "rev60": 5934, "est_flag": false},
+    {"chaves": ["fastback", "pulse"], "nome": "Fiat Fastback/Pulse Turbo 200", "cid": 12.1, "est": 14.3, "rev60": 5400, "est_flag": true},
+    {"chaves": ["boreal"], "nome": "Renault Boreal 1.3 Turbo", "cid": 11.2, "est": 13.6, "rev60": 5371, "est_flag": false},
+    {"chaves": ["kardian"], "nome": "Renault Kardian 1.0 Turbo", "cid": 11.4, "est": 13.8, "rev60": 5000, "est_flag": true},
+    {"chaves": ["cs55", "cs 55"], "nome": "Caoa Changan CS55 1.5 Turbo", "cid": 10.4, "est": 12.1, "rev60": 6000, "est_flag": true},
+    {"chaves": ["cronos"], "nome": "Fiat Cronos 1.3", "cid": 12.6, "est": 14.5, "rev60": 6000, "est_flag": true},
+    {"chaves": ["2008"], "nome": "Peugeot 2008 T200", "cid": 11.9, "est": 14.0, "rev60": 4820, "est_flag": true},
+    {"chaves": ["creta"], "nome": "Hyundai Creta 1.0 Turbo", "cid": 11.0, "est": 13.5, "rev60": 5500, "est_flag": true},
+    {"chaves": ["tracker"], "nome": "Chevrolet Tracker Turbo", "cid": 11.2, "est": 13.6, "rev60": 5200, "est_flag": true},
+    {"chaves": ["t-cross", "t cross", "tcross"], "nome": "VW T-Cross TSI", "cid": 10.8, "est": 13.2, "rev60": 10634, "est_flag": true},
+    {"chaves": ["corolla cross"], "nome": "Toyota Corolla Cross 2.0", "cid": 10.0, "est": 12.0, "rev60": 5500, "est_flag": true}
+  ]
+}

@@ -1,0 +1,8 @@
+{
+  "ref": "2026-07",
+  "fonte": "ANP, levantamento semanal de preços (valor inicial; o robô atualiza toda semana)",
+  "atualizado_em": "valor inicial",
+  "nacional": {"gasolina": 6.65, "etanol": 4.20},
+  "uf": {"PE": {"gasolina": 6.94, "etanol": 5.12}},
+  "municipios": {"RECIFE/PE": {"gasolina": 6.94, "etanol": 5.12}}
+}
