@@ -26,9 +26,9 @@ jobs:
           python-version: "3.12"
       - run: pip install openpyxl==3.1.5
       - name: Taxa média de juros (Banco Central)
-        run: python scripts/atualizar_taxas.py
+        run: python scripts/atualizar_taxas.py 2>&1 | tee data/robo.log
       - name: Preço dos combustíveis (ANP)
-        run: python scripts/atualizar_combustivel.py
+        run: python scripts/atualizar_combustivel.py 2>&1 | tee -a data/robo.log
       - name: Salvar se mudou
         run: |
           git config user.name "github-actions[bot]"
