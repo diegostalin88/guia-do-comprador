@@ -235,9 +235,14 @@ body.sheet-open .sheet{transform:none}
     </div>
     <div class="card">
       <h3>Quanto ele custa hoje por mês</h3>
-      <p class="note" id="atualNote">Serve para ver o impacto da compra no seu orçamento.</p>
-      <div class="row2" id="atualFields"></div>
+      <p class="note">Só precisa de dois números. O resto o app calcula.</p>
+      <div class="row2">
+        <div class="field"><span class="lbl">Km por mês</span><div class="input"><input id="a-km" inputmode="numeric" placeholder="1.300" autocomplete="off"><span>km</span></div></div>
+        <div class="field"><span class="lbl">Seguro por ano</span><div class="input"><span>R$</span><input id="a-seg" inputmode="decimal" placeholder="2.280" autocomplete="off"></div></div>
+      </div>
       <div id="atualTotal"></div>
+      <details class="more" style="background:var(--raised)"><summary>Ajustar o cálculo (opcional)</summary>
+        <div class="body"><p class="note" id="atualNote"></p><div class="row2" id="atualFields"></div></div></details>
     </div>
     <button class="btn" type="button" data-go="proposta">Continuar: proposta</button>
   </section>
@@ -364,7 +369,7 @@ const DEF={tab:"carro",uf:"",cidade:"",cep:"",temTroca:true,
   prop:{preco:0,desc:0,entrada:0,n:0,parc:0,taxa:0,aval:0,bonus:0},
   fees:{tc:0,reg:0,prest:0,revp:0,gar:0,acc:0,transf:0,laudo:0,outros:0},
   my:{lim:0,cash:0,kmMes:1300,city:60,mkt:0},loja:"",
-  atual:{cid:0,est:0,seguro:0,manut:0,parc:0,outros:0,fipe:0},atualNome:""};
+  atual:{cid:0,est:0,seguro:0,rev60:0,pneus:0,reserva:0,parc:0,outros:0,fipe:0},atualNome:""};
 const KEY="guiaComprador.v2";
 let S=JSON.parse(JSON.stringify(DEF)),SAVED=[];
 try{const s=JSON.parse(localStorage.getItem(KEY)||"null");if(s&&s.S){for(const k of Object.keys(DEF)){if(DEF[k]&&typeof DEF[k]==="object")S[k]={...DEF[k],...(s.S[k]||{})};else if(s.S[k]!==undefined)S[k]=s.S[k];}SAVED=s.SAVED||[];}}catch(e){}
@@ -491,19 +496,22 @@ $("cep").addEventListener("input",async()=>{let v=$("cep").value.replace(/\D/g,"
   catch(e){$("cepInfo").textContent="CEP não encontrado.";}});
 
 /* ---------- ajustes ---------- */
-const openSheet=()=>{document.body.classList.add("sheet-open");};const closeSheet=()=>{document.body.classList.remove("sheet-open");update();};
+const openSheet=()=>{document.body.classList.add("sheet-open");};const closeSheet=()=>{document.body.classList.remove("sheet-open");buildAtual();update();};
 $("openSheet").onclick=openSheet;$("closeSheet").onclick=closeSheet;$("sheetBg").onclick=closeSheet;
 const LIM=[["lim","Parcela máxima"],["cash","Aporte máximo"]],USE=[["kmMes","Km por mês"],["city","% na cidade"],["mkt","Taxa média mercado %"]];
 $("limFields").innerHTML=LIM.map(([k,l])=>money("m-"+k,l,S.my[k])).join("");
 $("useFields").innerHTML=USE.map(([k,l])=>money("m-"+k,l,S.my[k],k==="mkt"?String(D.taxas.mensal_pct).replace(".",","):"0")).join("");
-const AT=[["cid","km/l cidade"],["est","km/l estrada"],["seguro","Seguro por ano (R$)"],["manut","Manutenção por mês (R$)"],["parc","Parcela que ainda paga (R$)"],["outros","Outros por mês (R$)"],["fipe","Valor FIPE (R$)"]];
-function buildAtual(){const semFipe=!(S.temTroca&&S.troca.fipe);
-  $("atualFields").innerHTML=AT.filter(([k])=>k!=="fipe"||semFipe).map(([k,l])=>money("a-"+k,l,S.atual[k],k==="seguro"?"ex.: 2.280":"0")).join("");
-  $("atualNote").textContent=S.atualNome?`Consumo de ${S.atualNome} já preenchido. Coloque o seguro que você paga hoje.`:"Serve para ver o impacto da compra no seu orçamento. Coloque o seguro que você paga hoje.";}
-function applyAtual(){const n=norm(S.troca.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=n&&(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k)))),src=hit||base;
-  const kmA=S.my.kmMes*12,f=S.troca.fipe||0;S.atual.cid=src.cid;S.atual.est=src.est;S.atualNome=hit?hit.nome:"";
-  S.atual.manut=Math.round(((src.rev60||5500)/60000*kmA+(f<80000?1600:2000)/45000*kmA)/12+100);persist();buildAtual();update();}
+const AT=[["cid","km/l cidade"],["est","km/l estrada"],["rev60","Revisões até 60 mil km (R$)"],["pneus","Jogo de pneus (R$)"],["reserva","Desgaste/imprevistos por mês (R$)"],["parc","Parcela que ainda paga (R$)"],["outros","Outros por mês (R$)"],["fipe","Valor FIPE (R$)"]];
+function autoAtual(){const n=norm(S.troca.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=n&&(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k))));
+  const src=hit||base,f=(S.temTroca&&S.troca.fipe)||S.atual.fipe||0;return {cid:src.cid,est:src.est,rev60:src.rev60||5500,pneus:f&&f<80000?1600:2000,reserva:100,nome:hit?hit.nome:""};}
+function buildAtual(){const semFipe=!(S.temTroca&&S.troca.fipe),au=autoAtual();
+  $("a-km").value=fmtIn(S.my.kmMes);$("a-seg").value=fmtIn(S.atual.seguro);
+  $("atualFields").innerHTML=AT.filter(([k])=>k!=="fipe"||semFipe).map(([k,l])=>money("a-"+k,l,S.atual[k],k in au?fmtIn(au[k]):"0")).join("");
+  $("atualNote").textContent=`${au.nome?"Consumo e revisões de "+au.nome:"Valores médios de um carro popular"}. Só mude se souber o valor certo; em branco, o app usa a estimativa.`;}
+function applyAtual(){S.atualNome=autoAtual().nome;persist();buildAtual();update();}
 $("atualFields").addEventListener("input",e=>{const k=e.target.id.replace("a-","");if(k in S.atual){S.atual[k]=parse(e.target.value);persist();update();}});
+$("a-km").addEventListener("input",()=>{S.my.kmMes=parse($("a-km").value);const m=$("m-kmMes");if(m)m.value=fmtIn(S.my.kmMes);persist();update();});
+$("a-seg").addEventListener("input",()=>{S.atual.seguro=parse($("a-seg").value);persist();update();});
 $("sheet").addEventListener("input",e=>{const k=e.target.id.replace("m-","");if(k in S.my){S.my[k]=parse(e.target.value);persist();}});
 
 /* ---------- proposta ---------- */
@@ -529,8 +537,9 @@ function compute(){const P=S.prop,U=S.uso,M=S.my,c=S.car,t=S.temTroca?S.troca:CA
   const kmA=M.kmMes*12,p=M.city/100,comb=U.cid&&U.est?kmA*(p/U.cid+(1-p)/U.est)*U.gas/12:0,seg=U.seguro/12;
   const baseIpva=c.zero?(Math.max(0,P.preco-P.desc)||c.fipe):(c.fipe||P.preco),ipva=baseIpva*U.ipvaPct/100/12;
   const manut=(U.rev60/60000*kmA+U.pneus/45000*kmA)/12+(c.zero?0:U.reserva),mes=parc+comb+seg+ipva+manut;
-  const AA=S.atual,af=(S.temTroca&&S.troca.fipe)||AA.fipe||0,A={parc:AA.parc,seg:AA.seguro/12,comb:AA.cid&&AA.est?kmA*(p/AA.cid+(1-p)/AA.est)*U.gas/12:0,ipva:af*U.ipvaPct/100/12,manut:AA.manut,outros:AA.outros};
-  A.mes=A.parc+A.seg+A.comb+A.ipva+A.manut+A.outros;const atual=A.comb>0?A.mes:0;
+  const AA=S.atual,au=autoAtual(),g=k=>AA[k]||au[k],af=(S.temTroca&&S.troca.fipe)||AA.fipe||0;
+  const A={parc:AA.parc,seg:AA.seguro/12,comb:kmA*(p/g("cid")+(1-p)/g("est"))*U.gas/12,ipva:af*U.ipvaPct/100/12,rev:g("rev60")/60000*kmA/12,pneus:g("pneus")/45000*kmA/12,res:AA.reserva||au.reserva,outros:AA.outros};
+  A.manut=A.rev+A.pneus+A.res;A.mes=A.parc+A.seg+A.comb+A.ipva+A.manut+A.outros;const atual=kmA>0&&(AA.seguro>0||af>0)?A.mes:0;
   return {aval,bonus,fees,baseFin,fin,parc,r,esperada,oculto,parcelas,usadoValor,efetivo,comb,seg,ipva,manut,mes,atual,A,has:parc>0&&P.n>0};}
 function grade(R){const mk=mkt(),r=R.r;if(!R.has)return["","Falta a parcela","Digite o nº de parcelas e o valor da parcela."];
   if(r<=0.0001)return["ok","Sem juros","A soma das parcelas é igual ao saldo financiado."];if(r<=0.0101)return["ok","Taxa subsidiada","Bem abaixo da média. Condição de montadora."];
@@ -573,7 +582,10 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
     +t("Preço real",P.preco?brl(R.efetivo):"—",c.fipe&&P.preco?(R.efetivo>c.fipe?brl(R.efetivo-c.fipe)+" acima da FIPE":brl(c.fipe-R.efetivo)+" abaixo da FIPE"):"entrada + parcelas + troca",c.fipe&&P.preco?(R.efetivo>c.fipe*1.03?"warn":"ok"):"")
     +t("Custo/mês",brl(R.mes),R.atual?(R.mes>R.atual?"+"+brl(R.mes-R.atual)+" que hoje":brl(R.atual-R.mes)+" a menos"):"com tudo","");
   renderImpacto(R);
-  $("atualTotal").innerHTML=R.atual?`<div class="kpi"><span class="k">Seu carro custa hoje</span><span class="v num">${brl(R.atual)}/mês</span></div>`:`<p class="note">Preencha o consumo para calcular.</p>`;
+  {const A=R.A,L=[["Combustível",A.comb],["Seguro",A.seg],["IPVA",A.ipva],["Revisões",A.rev],["Pneus",A.pneus],["Desgaste/imprevistos",A.res]];if(A.parc)L.push(["Parcela",A.parc]);if(A.outros)L.push(["Outros",A.outros]);
+  $("atualTotal").innerHTML=R.atual?`<div class="kpi"><span class="k">Seu carro custa hoje</span><span class="v num">${brl(R.atual)}/mês</span></div>
+   <div class="list num">${L.map(([l,v])=>`<div><b>${l}</b><span>${brl(v)}</span></div>`).join("")}</div>
+   ${S.atual.seguro?"":`<p class="note">Sem o seguro a conta fica incompleta.</p>`}`:`<p class="note">Digite os km por mês e o seguro para calcular.</p>`;}
   const smax=Math.max(mk*2,R.r*1.1,0.03),pos=v=>Math.min(100,v/smax*100);
   $("juros").innerHTML=`<h3>Juros: ${gl}</h3><div class="scale" aria-hidden="true">${R.has?`<span class="pin" style="left:${pos(R.r)}%"></span>`:""}<span class="avg" style="left:${pos(mk)}%">média BC ${pct(mk)}</span></div>
     <p class="note">${gt}</p>${R.has&&R.baseFin>0?`<div class="list num"><div><b>Parcela dele</b><span>${brl(R.parc)}</span></div><div><b>Na taxa média</b><span>${brl(atMk)}</span></div><div><b>A 0,99% ao mês</b><span>${brl(pmt(R.baseFin,0.0099,P.n))}</span></div><div><b>Sem juros</b><span>${brl(R.baseFin/P.n)}</span></div></div>`:""}`;
