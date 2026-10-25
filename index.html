@@ -871,7 +871,8 @@ function renderAnun(){const t=S.troca,el=$("anunBody");
     <div class="field"><span class="lbl">Título</span><div class="input"><input id="an-tit" class="txt" readonly value="${esc(anunTitulo())}"></div></div>
     <div class="field"><span class="lbl" style="display:flex;justify-content:space-between">Descrição (pode editar)<button class="link" type="button" id="an-reset" style="padding:0">Refazer texto</button></span><textarea id="an-desc" rows="12" style="font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--raised);color:var(--ink);resize:vertical">${esc(anunTexto())}</textarea></div>
     <div class="btns"><button class="btn sec" type="button" id="an-ctit">Copiar título</button><button class="btn sec" type="button" id="an-cdesc">Copiar descrição</button>
-     <button class="btn wide" type="button" id="an-share">Compartilhar com fotos</button><button class="btn ghost wide" type="button" id="an-capa">Gerar capa com preço</button></div></div>
+     <button class="btn wide" type="button" id="an-share">Compartilhar fotos + texto</button><button class="btn sec wide" type="button" id="an-stxt">Compartilhar só o texto</button>
+     <p class="note" style="grid-column:1/-1;margin:0">As fotos vão juntas e o texto já fica copiado: quando as fotos chegarem na conversa, toque e segure no campo de mensagem e cole. Assim o texto vai uma vez só.</p><button class="btn ghost wide" type="button" id="an-capa">Gerar capa com preço</button></div></div>
    <div class="card"><h3>Onde publicar</h3>
     <p class="note">Abra o site ou app, toque em <b>Anunciar</b>, cole o título e a descrição e envie as fotos na ordem acima.</p>
     <div class="links"><a href="https://www.olx.com.br/" target="_blank" rel="noopener">OLX</a><a href="https://www.webmotors.com.br/" target="_blank" rel="noopener">Webmotors</a><a href="https://www.facebook.com/marketplace/create/vehicle" target="_blank" rel="noopener">Marketplace</a><a href="https://www.icarros.com.br/" target="_blank" rel="noopener">iCarros</a><a href="https://www.mobiauto.com.br/" target="_blank" rel="noopener">Mobiauto</a><a href="https://wa.me/?text=${encodeURIComponent(anunTitulo()+"\n\n"+anunTexto())}" target="_blank" rel="noopener">WhatsApp</a></div>
@@ -896,12 +897,16 @@ $("anunBody").addEventListener("click",async e=>{const b=e.target.closest("butto
   const tog=(k,v)=>{a[k]=(a[k]||[]).includes(v)?a[k].filter(x=>x!==v):[...(a[k]||[]),v];b.setAttribute("aria-pressed",String(a[k].includes(v)));};
   if(d.cond)tog("cond",d.cond);else if(d.opc)tog("opc",d.opc);else if(d.cambio){a.cambio=a.cambio===d.cambio?"":d.cambio;b.parentNode.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.cambio===a.cambio)));}
   else if(d.fl!=null||d.fr!=null||d.fx!=null){const i=+(d.fl??d.fr??d.fx);if(d.fx!=null){URL.revokeObjectURL(FOTOS[i].url);FOTOS.splice(i,1);}else{const j=d.fl!=null?i-1:i+1;if(j>=0&&j<FOTOS.length)[FOTOS[i],FOTOS[j]]=[FOTOS[j],FOTOS[i]];}renderThumbs();return;}
+  else if(b.id==="an-stxt"){const text=$("an-tit").value+"\n\n"+$("an-desc").value;if(navigator.share){try{await navigator.share({text});}catch(x){}}else copiar(text,"Texto copiado");return;}
   else if(b.id==="an-reset"){a.descEdit=false;persist();$("an-desc").value=anunTexto();toast("Texto refeito");return;}
   else if(b.id==="an-ctit"){copiar($("an-tit").value,"Título copiado");return;}
   else if(b.id==="an-cdesc"){copiar($("an-desc").value,"Descrição copiada");return;}
   else if(b.id==="an-capa"){const f=await capa();if(!f)return;if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});}catch(x){}}else baixar(f);return;}
   else if(b.id==="an-share"){const files=FOTOS.map((f,i)=>new File([f.blob],nomeArq(i),{type:"image/jpeg"})),text=$("an-tit").value+"\n\n"+$("an-desc").value;
-    if(files.length&&navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,text,title:$("an-tit").value});}catch(x){}}
+    if(files.length&&navigator.canShare&&navigator.canShare({files})){
+      try{navigator.clipboard&&navigator.clipboard.writeText(text).catch(()=>{});}catch(x){}
+      toast("Texto copiado. Depois das fotos, cole na conversa");
+      try{await navigator.share({files});}catch(x){}}
     else if(navigator.share&&!files.length){try{await navigator.share({text});}catch(x){}}
     else{copiar(text,"Texto copiado. Baixando as fotos…");files.forEach((f,i)=>setTimeout(()=>baixar(f),i*400));}return;}
   else return;persist();anunRefresh();});
