@@ -129,7 +129,7 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .tiles{display:grid;grid-template-columns:1fr 1fr;gap:10px}
 .tile{background:var(--surface);border-radius:16px;padding:14px;display:flex;flex-direction:column;gap:4px;box-shadow:0 1px 0 var(--line);min-width:0}
 .tile .k{font-size:.82rem;color:var(--muted);font-weight:700}
-.tile .v{font-family:var(--display);font-weight:700;font-size:1.6rem;line-height:1.05}
+.tile .v{font-family:var(--display);font-weight:700;font-size:clamp(1.25rem,6vw,1.6rem);line-height:1.05;white-space:nowrap}
 .tile .s{font-size:.82rem;color:var(--muted)}
 .tile.ok .v{color:var(--ok)}.tile.bad .v{color:var(--bad)}.tile.warn .v{color:var(--warn)}
 .scale{position:relative;height:14px;border-radius:999px;background:linear-gradient(90deg,var(--ok) 0 35%,var(--warn) 50% 65%,var(--bad) 80% 100%);margin:6px 0 20px}
@@ -141,10 +141,11 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .alerts .bad{background:var(--bad-soft)}.alerts .bad::before{background:var(--bad)}
 .alerts .warn{background:var(--warn-soft)}.alerts .warn::before{background:var(--warn)}
 .alerts .ok{background:var(--ok-soft)}.alerts .ok::before{background:var(--ok)}
+.alerts .info{background:var(--raised)}.alerts .info::before{background:var(--muted)}
 .list{display:flex;flex-direction:column}
 .list div{display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .list div:last-child{border-bottom:0}
-.list b{font-weight:400;color:var(--muted)}
+.list b{font-weight:400;color:var(--muted);font-family:var(--body)}
 .bar{display:flex;height:14px;border-radius:999px;overflow:hidden;background:var(--raised)}
 .bar span{display:block;height:100%}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:.85rem;color:var(--muted)}
@@ -240,19 +241,35 @@ body.sheet-open .sheet{transform:none}
     </div>
     <div class="card" id="pk-novo"></div>
     <div class="card" id="mk-car" hidden></div>
+    <div class="card" id="segNovo" hidden>
+      <h3>Seguro deste carro</h3>
+      <div class="field"><div class="input"><span>R$</span><input id="u-seguro" inputmode="decimal" placeholder="0" autocomplete="off"><span>por ano</span></div></div>
+      <p class="note">Estimado em 2,2% da FIPE. Troque pela cotação da sua corretora: é o item que mais muda o custo por mês.</p>
+    </div>
     <details class="more">
-      <summary>Custos de uso deste carro</summary>
+      <summary>Outros custos de uso deste carro</summary>
       <div class="body" id="usoFields"></div>
     </details>
-    <button class="btn" type="button" data-go="troca">Continuar: carro da troca</button>
+    <button class="btn" type="button" data-go="troca">Continuar: meu carro</button>
   </section>
 
   <!-- TROCA -->
   <section class="screen" id="sc-troca" hidden>
     <div>
       <h2 class="title">Seu carro atual</h2>
-      <p class="sub">Quanto ele vale, quanto custa hoje por mês e se vai entrar na troca.</p>
+      <p class="sub" id="meuSub">Quanto ele vale, quanto custa hoje por mês e se vai entrar na troca.</p>
     </div>
+    <div class="card">
+      <span class="lbl">Você tem carro hoje?</span>
+      <div class="seg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-tem="1">Tenho</button><button type="button" data-tem="0">Não tenho</button></div>
+    </div>
+    <div class="card" id="semCarro" hidden>
+      <h3>Seu orçamento para o carro</h3>
+      <p class="note">Sem carro hoje, a comparação é com quanto você pode gastar. Conte tudo: parcela, seguro, combustível, IPVA e manutenção.</p>
+      <div class="field"><span class="lbl">Quanto pode gastar por mês com o carro</span><div class="input"><span>R$</span><input id="orcCarro" inputmode="decimal" placeholder="ex.: 2.500" autocomplete="off"></div></div>
+      <div class="field"><span class="lbl">Quantos km vai rodar por mês</span><div class="input"><input id="a-km2" inputmode="numeric" placeholder="1.300" autocomplete="off"><span>km</span></div></div>
+    </div>
+    <div id="comCarro" class="screen">
     <div class="card">
       <span class="lbl">Como vai pagar a entrada?</span>
       <div class="seg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-troca="1">Carro na troca + dinheiro</button><button type="button" data-troca="0">Só dinheiro</button></div>
@@ -279,6 +296,7 @@ body.sheet-open .sheet{transform:none}
       <details class="more" style="background:var(--raised)"><summary>Ajustar o cálculo (opcional)</summary>
         <div class="body"><p class="note" id="atualNote"></p><div class="row2" id="atualFields"></div></div></details>
     </div>
+    </div>
     <button class="btn" type="button" data-go="proposta">Continuar: proposta</button>
   </section>
 
@@ -288,11 +306,12 @@ body.sheet-open .sheet{transform:none}
       <h2 class="title">O que o vendedor disse</h2>
       <p class="sub">Preencha enquanto ele fala. Não precisa saber a taxa: o app calcula pela parcela.</p>
     </div>
-    <div class="seg" style="grid-template-columns:1fr 1fr"><button type="button" data-troca="1">Com carro na troca</button><button type="button" data-troca="0">Só entrada</button></div>
+    <div class="seg trocaSeg" style="grid-template-columns:1fr 1fr"><button type="button" data-troca="1">Com carro na troca</button><button type="button" data-troca="0">Só entrada</button></div>
     <div class="card">
       <div class="field"><span class="lbl">Preço do carro</span><div class="input"><span>R$</span><input id="preco" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
       <div class="field"><span class="lbl">Desconto extra (se houver)</span><div class="input"><span>R$</span><input id="desc" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
       <div class="field"><span class="lbl">Seu dinheiro na entrada</span><div class="input"><span>R$</span><input id="entrada" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
+      <div class="list num" id="saldoInfo"></div>
     </div>
     <div class="card">
       <span class="lbl">Em quantas vezes?</span>
@@ -346,7 +365,7 @@ body.sheet-open .sheet{transform:none}
     <div><h2 class="title">Comparar</h2><p class="sub">Qual carro pesa menos no seu orçamento.</p></div>
     <div class="seg" id="seg" style="grid-template-columns:1fr 1fr"><button type="button" data-v="modelos" aria-pressed="true">Modelos</button><button type="button" data-v="salvas">Salvas</button></div>
     <div class="screen" id="cv-modelos">
-      <details class="more" id="ccBox"><summary id="ccSum">Condições iguais para todos</summary><div class="body"><div class="seg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-troca="1">Com troca</button><button type="button" data-troca="0">Só entrada</button></div><p class="note">Mesma entrada, prazo e taxa para comparar de forma justa. Em branco, o app usa o valor mostrado.</p><div class="row2" id="ccFields"></div></div></details>
+      <details class="more" id="ccBox"><summary id="ccSum">Condições iguais para todos</summary><div class="body"><div class="seg trocaSeg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-troca="1">Com troca</button><button type="button" data-troca="0">Só entrada</button></div><p class="note">Mesma entrada, prazo e taxa para comparar de forma justa. Em branco, o app usa o valor mostrado.</p><div class="row2" id="ccFields"></div></div></details>
       <div class="card">
         <h3>Buscar carros</h3>
         <p class="note">Só a marca e o ano já bastam. O app lista os modelos com o custo por mês de cada um.</p>
@@ -367,8 +386,6 @@ body.sheet-open .sheet{transform:none}
       <p class="sub">Propostas reais que você salvou, da mais barata para a mais cara. Ficam só neste celular.</p>
       <div class="saved" id="saved"></div>
     </div>
-    <div class="card"><h3>De onde vêm os dados</h3><div class="list" id="fontes" style="font-size:.92rem"></div></div>
-    <p class="note" style="text-align:center">Estimativas para ajudar na negociação. Não substituem o CET oficial do contrato.</p>
   </section>
 </main>
 
@@ -405,6 +422,8 @@ body.sheet-open .sheet{transform:none}
       <h3>Como você usa o carro</h3>
       <div class="row2" id="useFields"></div>
     </div>
+    <div class="card"><h3>De onde vêm os dados</h3><div class="list" id="fontes" style="font-size:.92rem"></div></div>
+    <p class="note" style="text-align:center">Estimativas para ajudar na negociação. Não substituem o CET oficial do contrato. Seus dados ficam só neste celular.</p>
     <button class="btn" id="closeSheet" type="button">Pronto</button>
   </div>
 </div>
@@ -421,12 +440,12 @@ const FIPE="https://parallelum.com.br/fipe/api/v1/carros";
 
 /* ---------- estado ---------- */
 const CAR0={nome:"",fipe:0,ano:0,zero:true,mes:"",codigo:""};
-const DEF={tab:"carro",uf:"",cidade:"",cep:"",temTroca:true,
+const DEF={tab:"carro",uf:"",cidade:"",cep:"",temTroca:true,temCarro:true,
   car:{...CAR0},troca:{...CAR0,zero:false},
   uso:{cid:11,est:13.5,seguro:3000,rev60:5500,pneus:2400,gas:6.7,ipvaPct:2.4,reserva:0,km:0},usoFlag:true,usoNome:"",
   prop:{preco:0,desc:0,entrada:0,n:0,parc:0,taxa:0,aval:0,bonus:0},
   fees:{tc:0,reg:0,prest:0,revp:0,gar:0,acc:0,transf:0,laudo:0,outros:0},
-  my:{lim:0,cash:0,kmMes:1300,city:60,mkt:0},loja:"",
+  my:{lim:0,cash:0,kmMes:1300,city:60,mkt:0,orcCarro:0},loja:"",
   atual:{cid:0,est:0,seguro:0,rev60:0,pneus:0,reserva:0,parc:0,outros:0,fipe:0},atualNome:"",
   cmp:[],cc:{entrada:0,troca:0,n:0,taxa:0},cmpPick:{nome:"",fipe:0,ano:0,zero:true,mes:"",codigo:""},orc:{lim:0,filtro:"",view:"modelos"}};
 const KEY="guiaComprador.v2";
@@ -539,8 +558,10 @@ function applyModelo(){
   Object.assign(S.uso,{cid:src.cid,est:src.est,rev60:src.rev60,seguro:Math.round(f*(base.seguro_pct||2.2)/100/10)*10||3000,pneus:f<120000?2000:f<160000?2400:2900,reserva:S.car.zero?0:80});
   S.usoFlag=!hit||hit.est_flag;S.usoNome=hit?hit.nome:"";if(!S.prop.preco&&f){S.prop.preco=f;$("preco").value=fmtIn(f);}
   buildUso();persist();update();}
-const USO=[["cid","km/l cidade"],["est","km/l estrada"],["seguro","Seguro por ano (R$)"],["rev60","Revisões até 60 mil km (R$)"],["pneus","Jogo de pneus (R$)"],["reserva","Reserva desgaste/mês (R$)"],["km","Km do carro (seminovo)"],["gas","Gasolina R$/litro"],["ipvaPct","IPVA %"]];
-function buildUso(){$("usoFields").innerHTML=`<p class="note">${S.usoFlag?"Valores estimados para este modelo. Troque pela cotação do seguro e pela tabela de revisões da marca.":"Consumo Inmetro e revisões oficiais de "+esc(S.usoNome)+". Seguro estimado: troque pela sua cotação."}</p><div class="row2">${USO.map(([k,l])=>money("u-"+k,l,S.uso[k])).join("")}</div>`;}
+const USO=[["cid","km/l cidade"],["est","km/l estrada"],["rev60","Revisões até 60 mil km (R$)"],["pneus","Jogo de pneus (R$)"],["reserva","Reserva desgaste/mês (R$)"],["km","Km do carro (seminovo)"],["gas","Gasolina R$/litro"],["ipvaPct","IPVA %"]];
+function buildUso(){$("usoFields").innerHTML=`<p class="note">${S.usoFlag?"Valores estimados para este modelo. Se tiver a tabela de revisões da marca, troque aqui.":"Consumo Inmetro e revisões oficiais de "+esc(S.usoNome)+"."}</p><div class="row2">${USO.map(([k,l])=>money("u-"+k,l,S.uso[k])).join("")}</div>`;
+  $("segNovo").hidden=!S.car.nome;$("u-seguro").value=fmtIn(S.uso.seguro);}
+$("u-seguro").addEventListener("input",()=>{S.uso.seguro=parse($("u-seguro").value);persist();update();});
 $("usoFields").addEventListener("input",e=>{const k=e.target.id.replace("u-","");if(k in S.uso){S.uso[k]=parse(e.target.value);persist();update();}});
 
 /* ---------- local ---------- */
@@ -560,7 +581,7 @@ $("cep").addEventListener("input",async()=>{let v=$("cep").value.replace(/\D/g,"
 /* ---------- ajustes ---------- */
 const openSheet=()=>{document.body.classList.add("sheet-open");};const closeSheet=()=>{document.body.classList.remove("sheet-open");buildAtual();update();};
 $("openSheet").onclick=openSheet;$("closeSheet").onclick=closeSheet;$("sheetBg").onclick=closeSheet;
-const LIM=[["lim","Parcela máxima"],["cash","Aporte máximo"]],USE=[["kmMes","Km por mês"],["city","% na cidade"],["mkt","Taxa média mercado %"]];
+const LIM=[["lim","Parcela máxima"],["cash","Aporte máximo"]],USE=[["kmMes","Km por mês"],["city","% na cidade"],["mkt","Taxa média %"]];
 $("limFields").innerHTML=LIM.map(([k,l])=>money("m-"+k,l,S.my[k])).join("");
 $("useFields").innerHTML=USE.map(([k,l])=>money("m-"+k,l,S.my[k],k==="mkt"?String(D.taxas.mensal_pct).replace(".",","):"0")).join("");
 const AT=[["cid","km/l cidade"],["est","km/l estrada"],["rev60","Revisões até 60 mil km (R$)"],["pneus","Jogo de pneus (R$)"],["reserva","Desgaste/imprevistos por mês (R$)"],["parc","Parcela que ainda paga (R$)"],["outros","Outros por mês (R$)"],["fipe","Valor FIPE (R$)"]];
@@ -582,13 +603,21 @@ function renderN(){const n=S.prop.n,custom=n&&!NS.includes(n);$("nChips").innerH
   $("nOutroWrap").hidden=!custom&&!renderN.other;if(custom)$("nOutro").value=n;}
 $("nChips").addEventListener("click",e=>{const b=e.target.closest("[data-n]");if(!b)return;const v=+b.dataset.n;renderN.other=v===0;if(v){S.prop.n=v;}else{S.prop.n=parse($("nOutro").value);setTimeout(()=>$("nOutro").focus(),0);}renderN();persist();update();});
 $("nOutro").addEventListener("input",()=>{S.prop.n=parse($("nOutro").value);persist();update();});
-["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>{$(k).value=fmtIn(S.prop[k]);$(k).addEventListener("input",()=>{S.prop[k]=parse($(k).value);persist();update();});});
+["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>{$(k).value=fmtIn(S.prop[k]);$(k).addEventListener("input",()=>{S.prop[k]=parse($(k).value);if(k==="taxa")S.prop.taxaSet=$(k).value.trim()!=="";persist();update();});});
+if(S.prop.taxaSet&&!S.prop.taxa)$("taxa").value="0";
 const FEES=[["tc","Cadastro"],["reg","Registro"],["prest","Seguro prestamista"],["revp","Plano revisões"],["gar","Garantia estendida"],["acc","Acessórios"],["transf","Transferência"],["laudo","Laudo cautelar"],["outros","Outros"]];
 $("feeFields").innerHTML=FEES.map(([k,l])=>money("f-"+k,l,S.fees[k])).join("");
 $("feeFields").addEventListener("input",e=>{const k=e.target.id.replace("f-","");if(k in S.fees){S.fees[k]=parse(e.target.value);persist();update();}});
 const syncTroca=()=>{$("trocaBox").hidden=!S.temTroca;document.querySelectorAll("[data-troca]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.troca==="1"===S.temTroca)));
   $("trocaNota").textContent=S.temTroca?"A loja fica com seu carro e o valor dele abate do preço.":"Seu carro fica fora da negociação. Só o dinheiro da entrada abate do preço (se vender por fora, some o valor na entrada).";};syncTroca();
 document.addEventListener("click",e=>{const b=e.target.closest("[data-troca]");if(!b)return;S.temTroca=b.dataset.troca==="1";syncTroca();persist();if($("ccFields"))buildCC();renderCmp&&renderCmp();renderOrc&&renderOrc();update();});
+function syncTem(){const t=S.temCarro;document.querySelectorAll("[data-tem]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.tem==="1"===t)));
+  $("comCarro").hidden=!t;$("semCarro").hidden=t;document.querySelectorAll(".trocaSeg").forEach(x=>x.hidden=!t);
+  $("meuSub").textContent=t?"Quanto ele vale, quanto custa hoje por mês e se vai entrar na troca.":"Sem problema: o app compara o carro novo com o quanto você pode gastar.";
+  $("orcCarro").value=fmtIn(S.my.orcCarro);$("a-km2").value=fmtIn(S.my.kmMes);}
+document.addEventListener("click",e=>{const b=e.target.closest("[data-tem]");if(!b)return;S.temCarro=b.dataset.tem==="1";if(!S.temCarro)S.temTroca=false;syncTem();syncTroca();persist();if($("ccFields"))buildCC();renderCmp();renderOrc();update();});
+$("orcCarro").addEventListener("input",()=>{S.my.orcCarro=parse($("orcCarro").value);persist();update();});
+$("a-km2").addEventListener("input",()=>{S.my.kmMes=parse($("a-km2").value);const m=$("m-kmMes");if(m)m.value=fmtIn(S.my.kmMes);persist();update();});
 $("loja").value=S.loja||"";$("loja").addEventListener("input",()=>{S.loja=$("loja").value;persist();});
 
 /* ---------- cálculo ---------- */
@@ -602,9 +631,10 @@ function compute(){const P=S.prop,U=S.uso,M=S.my,c=S.car,t=S.temTroca?S.troca:CA
   const manut=(U.rev60/60000*kmA+U.pneus/45000*kmA)/12+(c.zero?0:U.reserva),mes=parc+comb+seg+ipva+manut;
   const AA=S.atual,au=autoAtual(),g=k=>AA[k]||au[k],af=S.troca.fipe||AA.fipe||0;
   const A={parc:AA.parc,seg:AA.seguro/12,comb:kmA*(p/g("cid")+(1-p)/g("est"))*U.gas/12,ipva:af*U.ipvaPct/100/12,rev:g("rev60")/60000*kmA/12,pneus:g("pneus")/45000*kmA/12,res:AA.reserva||au.reserva,outros:AA.outros};
-  A.manut=A.rev+A.pneus+A.res;A.mes=A.parc+A.seg+A.comb+A.ipva+A.manut+A.outros;const atual=kmA>0&&(AA.seguro>0||af>0)?A.mes:0;
+  A.manut=A.rev+A.pneus+A.res;A.mes=A.parc+A.seg+A.comb+A.ipva+A.manut+A.outros;const atual=S.temCarro&&kmA>0&&(AA.seguro>0||af>0)?A.mes:0;
   return {aval,bonus,fees,baseFin,fin,parc,r,esperada,oculto,parcelas,usadoValor,efetivo,comb,seg,ipva,manut,mes,atual,A,has:parc>0&&P.n>0};}
 function grade(R){const mk=mkt(),r=R.r;if(!R.has)return["","Falta a parcela","Digite o nº de parcelas e o valor da parcela."];
+  if(R.baseFin>0&&R.parcelas<R.baseFin*0.98)return["warn","Confira os valores","A soma das parcelas não cobre o saldo a financiar. Algum valor ficou de fora."];
   if(r<=0.0001)return["ok","Sem juros","A soma das parcelas é igual ao saldo financiado."];if(r<=0.0101)return["ok","Taxa subsidiada","Bem abaixo da média. Condição de montadora."];
   if(r<=mk*0.85)return["ok","Abaixo da média","Taxa boa para o mercado atual."];if(r<=mk*1.1)return["warn","Na média","Normal para banco. Compare com o seu banco."];
   if(r<=mk*1.5)return["bad","Acima da média","Mais cara que a média dos bancos. Negocie."];return["bad","Muito acima","Mais de 1,5x a média do Banco Central. Pode ser abusiva."];}
@@ -622,15 +652,17 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
   renderTroca();
   const A=[],ti=trocaInfo(),atMk=pmt(R.baseFin,mk,P.n);
   if(R.has&&R.r>mk*1.1)A.push(["bad",`Você pagaria ${brl(Math.max(0,(R.parc-atMk)*P.n))} a mais do que na taxa média do mercado (${pct(mk)} ao mês).`]);
-  if(R.has&&P.taxa===0&&R.r>0.002)A.push(["bad",`Ele disse taxa zero, mas a parcela embute ${pct(R.r)} ao mês: ${brl(R.oculto)} a mais. Peça o CET e o que está incluído.`]);
-  else if(R.has&&P.taxa>0&&R.r>P.taxa/100+0.001)A.push(["bad",`Taxa dita ${pct(P.taxa/100)}, mas a parcela dá ${pct(R.r)} ao mês: ${brl(R.oculto)} a mais.`]);
+  if(R.has&&R.baseFin>0&&R.parcelas<R.baseFin*0.98)A.push(["warn",`A soma das parcelas (${brl(R.parcelas)}) é menor que o saldo a financiar (${brl(R.baseFin)}). Falta digitar algum bônus, desconto ou valor de entrada? Confira antes de confiar no resultado.`]);
+  if(R.has&&P.parc>0&&P.taxaSet&&P.taxa===0&&R.r>0.002)A.push(["bad",`Ele disse taxa zero, mas a parcela embute ${pct(R.r)} ao mês: ${brl(R.oculto)} a mais. Peça o CET e o que está incluído.`]);
+  else if(R.has&&P.parc>0&&P.taxaSet&&P.taxa>0&&R.r>P.taxa/100+0.001)A.push(["bad",`Taxa dita ${pct(P.taxa/100)}, mas a parcela dá ${pct(R.r)} ao mês: ${brl(R.oculto)} a mais.`]);
   if(P.preco&&c.fipe){const d=P.preco/c.fipe-1;if(d>0.03)A.push(["warn",`Preço ${pct(d,1)} acima da FIPE (${brl(c.fipe)}).${c.zero?" Pode ser preço inflado para o bônus parecer maior.":" Negocie para perto da FIPE."}`]);
     else if(d<-0.03)A.push(["ok",`Preço ${pct(-d,1)} abaixo da FIPE.${c.zero?"":" Confira o laudo para entender o motivo."}`]);}
   if(ti)A.push([ti.cls,`Seu carro entrou por ${pct(ti.q,0)} da FIPE: ${ti.dif>0?brl(ti.dif)+" abaixo":brl(-ti.dif)+" acima"}.`]);
   {const av=avg(c.anuncios);if(av&&P.preco){const d=P.preco/av-1;if(d>0.03)A.push(["warn",`Os anúncios que você achou pedem em média ${brl(av)}. O vendedor está ${pct(d,1)} acima.`]);else if(d<-0.03)A.push(["ok",`Preço ${pct(-d,1)} abaixo da média dos anúncios (${brl(av)}).`]);}}
   {const av=avg(S.troca.anuncios),of=P.aval+P.bonus;if(S.temTroca&&av&&of&&of<av*0.85)A.push(["warn",`Carros iguais ao seu são anunciados por ${brl(av)} em média. A loja ofereceu ${pct(of/av,0)} disso; vender por conta própria pode render mais.`]);}
   if(R.fees>0)A.push(["warn",`Taxas listadas somam ${brl(R.fees)} e entraram no financiamento. Pergunte se dá para tirar.`]);
-  if(R.atual&&R.mes){const dd=R.mes-R.atual;A.push([dd>R.atual*0.5?"bad":dd>0?"warn":"ok",`O carro novo custa ${brl(Math.abs(dd))} por mês ${dd>0?"a mais":"a menos"} que o seu carro hoje (${brl(R.atual)} → ${brl(R.mes)}).`]);}
+  if(R.atual&&R.mes){const dd=R.mes-R.atual;A.push(["info",`O carro novo custa ${brl(Math.abs(dd))} por mês ${dd>0?"a mais":"a menos"} que o seu carro hoje (${brl(R.atual)} → ${brl(R.mes)}).`]);}
+  if(!S.temCarro&&M.orcCarro&&R.mes){const f=M.orcCarro-R.mes;A.push([f<0?"bad":f<M.orcCarro*0.1?"warn":"ok",f<0?`Custo total ${brl(R.mes)} por mês passa ${brl(-f)} do seu orçamento de ${brl(M.orcCarro)}.`:`Custo total ${brl(R.mes)} por mês cabe no seu orçamento de ${brl(M.orcCarro)} (sobram ${brl(f)}).`]);}
   if(!c.zero&&S.uso.km&&c.ano){const ka=S.uso.km/Math.max(0.5,new Date().getFullYear()-c.ano+1);A.push([ka>18000?"warn":"ok",`Km do carro ~${Math.round(ka).toLocaleString("pt-BR")}/ano${ka>18000?", acima da média: peça desconto.":", dentro da média."}`]);}
   if(M.lim&&R.has)A.push([R.parc>M.lim+0.5?"bad":"ok",`Parcela ${brl(R.parc)} ${R.parc>M.lim+0.5?"passa do":"cabe no"} seu limite de ${brl(M.lim)}.`]);
   if(M.cash&&P.entrada>M.cash+0.5)A.push(["bad",`Entrada ${brl(P.entrada)} passa do seu aporte de ${brl(M.cash)}.`]);
@@ -643,10 +675,13 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
     <p>${!P.preco||!R.has?"Preencha preço, parcelas e valor da parcela.":nb?`${nb} ponto${nb>1?"s":""} que pesa${nb>1?"m":""} contra você. Veja abaixo.`:nw?`${nw} ponto${nw>1?"s":""} para negociar.`:"Nada escondido encontrado."}</p>`;
   const t=(k,v,s,cl="")=>`<div class="tile ${cl}"><span class="k">${k}</span><span class="v num">${v}</span><span class="s">${s}</span></div>`;
   $("tiles").innerHTML=t("Taxa real",R.has?pct(R.r):"—",R.has?pct(ann)+" ao ano":"falta a parcela",gc)
-    +t("Escondido",R.has?brl(R.oculto):"—","a mais nas parcelas",R.oculto>100?"bad":"ok")
+    +(P.taxaSet?t("Escondido",R.has?brl(R.oculto):"—","além da taxa que ele disse",R.oculto>100?"bad":"ok")
+      :t("Juros pagos",R.has?brl(Math.max(0,R.parcelas-R.baseFin)):"—","diga a taxa dele para achar o escondido",""))
     +t("Preço real",P.preco?brl(R.efetivo):"—",c.fipe&&P.preco?(R.efetivo>c.fipe?brl(R.efetivo-c.fipe)+" acima da FIPE":brl(c.fipe-R.efetivo)+" abaixo da FIPE"):"entrada + parcelas + troca",c.fipe&&P.preco?(R.efetivo>c.fipe*1.03?"warn":"ok"):"")
-    +t("Custo/mês",brl(R.mes),R.atual?(R.mes>R.atual?"+"+brl(R.mes-R.atual)+" que hoje":brl(R.atual-R.mes)+" a menos"):"com tudo","");
+    +t("Custo/mês",brl(R.mes),R.atual?(R.mes>R.atual?"+"+brl(R.mes-R.atual)+" que hoje":brl(R.atual-R.mes)+" a menos"):(!S.temCarro&&M.orcCarro?`orçamento ${brl(M.orcCarro)}`:"com tudo"),!S.temCarro&&M.orcCarro?(R.mes>M.orcCarro?"bad":"ok"):"");
   renderImpacto(R);
+  $("saldoInfo").innerHTML=P.preco?[["Preço",P.preco],S.temTroca&&(R.aval+R.bonus)?["Seu carro na troca",-(R.aval+R.bonus)]:null,P.desc?["Desconto",-P.desc]:null,P.entrada?["Entrada",-P.entrada]:null].filter(Boolean).map(([l,v])=>`<div><b>${l}</b><span>${v<0?"− "+brl(-v):brl(v)}</span></div>`).join("")
+    +`<div><b><strong style="color:var(--ink)">Saldo a financiar</strong></b><span><strong>${brl(R.baseFin)}</strong></span></div>`+(S.temTroca&&!(R.aval+R.bonus)?`<p class="note">Falta o valor que a loja ofereceu pelo seu carro (aba Meu carro).</p>`:""):"";
   {const A=R.A,L=[["Combustível",A.comb],["Seguro",A.seg],["IPVA",A.ipva],["Revisões",A.rev],["Pneus",A.pneus],["Desgaste/imprevistos",A.res]];if(A.parc)L.push(["Parcela",A.parc]);if(A.outros)L.push(["Outros",A.outros]);
   $("atualTotal").innerHTML=R.atual?`<div class="kpi"><span class="k">Seu carro custa hoje</span><span class="v num">${brl(R.atual)}/mês</span></div>
    <div class="list num">${L.map(([l,v])=>`<div><b>${l}</b><span>${brl(v)}</span></div>`).join("")}</div>
@@ -663,6 +698,13 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
   $("semiCheck").hidden=c.zero||!c.nome;}
 
 function renderImpacto(R){const el=$("impacto"),A=R.A,P=S.prop;
+  if(!S.temCarro){const o=S.my.orcCarro,rows=[["Parcela",R.parc],["Seguro",R.seg],["Combustível",R.comb],["IPVA",R.ipva],["Manutenção",R.manut]];
+    el.innerHTML=`<h3>Quanto o carro vai pesar no mês</h3>
+     <div class="impact"><span class="big num">${brl(R.mes)}</span><span class="note">por mês, com tudo</span></div>
+     ${o?`<div class="gauge"><i style="width:${Math.min(100,R.mes/o*100).toFixed(1)}%;background:var(--${R.mes>o?"bad":R.mes>o*0.9?"warn":"ok"})"></i></div>
+     <div class="duo"><div class="kpi"><span class="k">Seu orçamento</span><span class="v num">${brl(o)}</span></div><div class="kpi ${R.mes>o?"bad":"ok"}"><span class="k">${R.mes>o?"Passa em":"Sobra"}</span><span class="v num">${brl(Math.abs(o-R.mes))}</span></div></div>`
+      :`<p class="note">Diga quanto pode gastar por mês com o carro (aba Meu carro) para ver se cabe.</p>`}
+     <div class="list num">${rows.map(([l,v])=>`<div><b>${l}</b><span>${brl(v)}</span></div>`).join("")}<div><b>Por ano</b><span>${brl(R.mes*12)}</span></div>${P.n?`<div><b>Depois de quitar</b><span>${brl(R.mes-R.parc)}/mês</span></div>`:""}</div>`;return;}
   if(!R.atual){el.innerHTML=`<h3>Impacto no seu orçamento</h3><p class="note">Preencha quanto seu carro custa hoje (tela Meu carro) para ver quanto a compra aumenta suas despesas por mês.</p><button class="btn sec" type="button" data-go="troca">Preencher meu carro</button>`;return;}
   const d=R.mes-R.atual,pc=R.atual?d/R.atual:0,cls=v=>v>0.5?"up":v<-0.5?"down":"",sg=v=>(v>0.5?"+":"")+brl(v);const nb=v=>Math.round(v).toLocaleString("pt-BR"),ns=v=>(v>0.5?"+":v<-0.5?"−":"")+Math.round(Math.abs(v)).toLocaleString("pt-BR");
   const rows=[["Parcela",A.parc,R.parc],["Seguro",A.seg,R.seg],["Combustível",A.comb,R.comb],["IPVA",A.ipva,R.ipva],["Manutenção",A.manut,R.manut]];if(A.outros)rows.push(["Outros",A.outros,0]);
@@ -683,10 +725,11 @@ function renderImpacto(R){const el=$("impacto"),A=R.A,P=S.prop;
 function summary(R){const P=S.prop,c=S.car,ti=trocaInfo();return `${c.nome||"Carro"} (${c.zero?"0 km":"ano "+c.ano})${S.loja?" — "+S.loja:""}
 Preço ${brl(P.preco)} | FIPE ${brl(c.fipe)}${ti?`\nTroca: ${S.troca.nome} oferta ${brl(P.aval+P.bonus)} = ${pct(ti.q,0)} da FIPE (${brl(ti.dif)} abaixo)`:""}
 Entrada ${brl(P.entrada)} | ${P.n}x de ${brl(R.parc)}
-Taxa real ${pct(R.r)} a.m. (média BC ${pct(mkt())}) | escondido ${brl(R.oculto)}
-Preço real ${brl(R.efetivo)} | custo/mês ${brl(R.mes)}${R.atual?`\nHoje gasto ${brl(R.atual)}/mês → ${R.mes>=R.atual?"+":"−"}${brl(Math.abs(R.mes-R.atual)).replace("−","")} por mês`:""}
+Taxa real ${pct(R.r)} a.m. (média BC ${pct(mkt())}) | ${S.prop.taxaSet?"escondido "+brl(R.oculto):"juros "+brl(Math.max(0,R.parcelas-R.baseFin))}
+Preço real ${brl(R.efetivo)} | custo/mês ${brl(R.mes)}${!S.temCarro&&S.my.orcCarro?`\nOrçamento ${brl(S.my.orcCarro)}/mês → ${R.mes>S.my.orcCarro?"passa "+brl(R.mes-S.my.orcCarro):"sobram "+brl(S.my.orcCarro-R.mes)}`:""}${R.atual?`\nHoje gasto ${brl(R.atual)}/mês → ${R.mes>=R.atual?"+":"−"}${brl(Math.abs(R.mes-R.atual)).replace("−","")} por mês`:""}
 — Guia do Comprador`;}
-function renderSaved(){const list=[...SAVED].sort((a,b)=>a.efetivo-b.efetivo),best=list.length>1&&list[0].id;$("badge").hidden=!SAVED.length;$("badge").textContent=SAVED.length;
+function badge(){const n=SAVED.length+S.cmp.length;$("badge").hidden=!n;$("badge").textContent=n;}
+function renderSaved(){const list=[...SAVED].sort((a,b)=>a.efetivo-b.efetivo),best=list.length>1&&list[0].id;badge();
   $("saved").innerHTML=list.length?list.map(s=>`<div class="sv ${s.id===best?"best":""}"><div class="t"><b>${esc(s.car)}</b><span class="num">${brl(s.efetivo)}</span></div>
     <div class="m">${esc(s.loja||"sem loja")} · ${s.n}x ${brl(s.parc)} · taxa ${pct(s.taxa)} · ${brl(s.mes)}/mês${s.troca?" · troca "+s.troca:""}${s.id===best?" · <b>mais barata</b>":""}</div>
     <div class="btns"><button class="btn sec" type="button" data-load="${s.id}">Abrir</button><button class="btn ghost" type="button" data-del="${s.id}">Apagar</button></div></div>`).join("")
@@ -695,10 +738,10 @@ $("save").addEventListener("click",()=>{const R=compute(),ti=trocaInfo();SAVED.p
   st:JSON.parse(JSON.stringify({atual:S.atual,atualNome:S.atualNome,car:S.car,troca:S.troca,temTroca:S.temTroca,uso:S.uso,prop:S.prop,fees:S.fees,loja:S.loja,usoFlag:S.usoFlag,usoNome:S.usoNome}))});persist();renderSaved();toast("Proposta salva");});
 $("copy").addEventListener("click",()=>{const t=summary(compute()),ok=()=>toast("Copiado. Cole no WhatsApp");const fb=()=>{const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");ok();}catch(e){toast("Não deu para copiar");}a.remove();};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok).catch(fb);else fb();});
-function refillAll(){["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>$(k).value=fmtIn(S.prop[k]));FEES.forEach(([k])=>$("f-"+k).value=fmtIn(S.fees[k]));$("loja").value=S.loja||"";syncTroca();renderN();pkNovo.render();pkTroca.render();buildUso();buildAtual();update();}
+function refillAll(){["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>$(k).value=fmtIn(S.prop[k]));if(S.prop.taxaSet&&!S.prop.taxa)$("taxa").value="0";FEES.forEach(([k])=>$("f-"+k).value=fmtIn(S.fees[k]));$("loja").value=S.loja||"";syncTroca();renderN();pkNovo.render();pkTroca.render();buildUso();buildAtual();update();}
 $("clear").addEventListener("click",()=>{S.prop={...DEF.prop};S.fees={...DEF.fees};S.loja="";S.car={...CAR0};persist();refillAll();go("carro");toast("Nova proposta");});
 $("saved").addEventListener("click",e=>{const l=e.target.dataset.load,d=e.target.dataset.del;if(d){SAVED=SAVED.filter(s=>String(s.id)!==d);persist();renderSaved();}
-  if(l){const s=SAVED.find(x=>String(x.id)===l);if(!s)return;Object.assign(S,JSON.parse(JSON.stringify(s.st)));persist();refillAll();go("resultado");toast("Proposta aberta");}});
+  if(l){const s=SAVED.find(x=>String(x.id)===l);if(!s)return;const st=JSON.parse(JSON.stringify(s.st));delete st.atual;delete st.atualNome;delete st.troca;Object.assign(S,st);persist();refillAll();go("resultado");toast("Proposta aberta");}});
 
 /* ---------- preços de anúncios (links prontos + preços que você achou) ---------- */
 const avg=a=>Array.isArray(a)&&a.length?a.reduce((x,y)=>x+y,0)/a.length:0;
@@ -708,13 +751,14 @@ function linksHTML(c){const q=busca(c),ano=c.zero?"0 km":String(c.ano||""),cid=S
   const L=[["OLX",`https://www.olx.com.br/autos-e-pecas/carros-vans-e-utilitarios${uf?"/estado-"+uf:""}?q=${e(q+(c.zero?"":" "+ano))}`],["Webmotors",g("webmotors.com.br")],["iCarros",g("icarros.com.br")],["Mobiauto",g("mobiauto.com.br")],
     [c.zero?"Concessionárias":"Lojas de seminovos",`https://www.google.com/maps/search/${e((c.zero?"concessionária ":"seminovos ")+w0(c)+" "+cid)}`],["Google",`https://www.google.com/search?q=${e(q+" "+ano+" preço "+cid)}`]];
   return `<div class="links">${L.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}</div>`;}
+const mil=v=>(v/1000).toLocaleString("pt-BR",{maximumFractionDigits:1})+" mil";
 const w0=c=>String(c.nome||"").split(/\s+/)[0]||"";
 function renderMarket(key){const el=$("mk-"+key),c=S[key];if(!c.nome){el.hidden=true;return;}el.hidden=false;
   const a=c.anuncios||[],av=avg(a),mn=a.length?Math.min(...a):0,mx=a.length?Math.max(...a):0,P=S.prop;
   let cmp="";if(av){const parts=[];if(c.fipe)parts.push(`<div class="kpi ${av>c.fipe*1.03?"warn":"ok"}"><span class="k">Média / FIPE</span><span class="v num">${pct(av/c.fipe,0)}</span></div>`);
     if(key==="car"&&P.preco)parts.push(`<div class="kpi ${P.preco>av*1.03?"bad":"ok"}"><span class="k">Vendedor / anúncios</span><span class="v num">${pct(P.preco/av,0)}</span></div>`);
-    if(key==="troca"&&P.aval)parts.push(`<div class="kpi ${(P.aval+P.bonus)<av*0.85?"bad":(P.aval+P.bonus)<av*0.92?"warn":"ok"}"><span class="k">Oferta / anúncios</span><span class="v num">${pct((P.aval+P.bonus)/av,0)}</span></div>`);
-    cmp=`<div class="list num"><div><b>Média de ${a.length} anúncio${a.length>1?"s":""}</b><span>${brl(av)}</span></div>${a.length>1?`<div><b>Menor / maior</b><span>${brl(mn)} / ${brl(mx)}</span></div>`:""}</div>${parts.length?`<div class="cmp">${parts.join("")}</div>`:""}`;}
+    if(key==="troca"&&S.temTroca&&P.aval)parts.push(`<div class="kpi ${(P.aval+P.bonus)<av*0.85?"bad":(P.aval+P.bonus)<av*0.92?"warn":"ok"}"><span class="k">Oferta / anúncios</span><span class="v num">${pct((P.aval+P.bonus)/av,0)}</span></div>`);
+    cmp=`<div class="list num"><div><b>Média de ${a.length} anúncio${a.length>1?"s":""}</b><span>${brl(av)}</span></div>${a.length>1?`<div><b>Faixa</b><span>${mil(mn)} a ${mil(mx)}</span></div>`:""}</div>${parts.length?`<div class="cmp">${parts.join("")}</div>`:""}`;}
   el.innerHTML=`<h3>${key==="car"?"Quanto estão pedindo":"Quanto pedem por um igual ao seu"}${S.cidade?" em "+esc(S.cidade):""}</h3>
     <p class="note">Abra os anúncios, olhe 3 ou 4 parecidos (mesmo ano e km) e anote os preços aqui.</p>${linksHTML(c)}
     <div class="addrow"><div class="input"><span>R$</span><input id="mk-${key}-in" inputmode="decimal" placeholder="preço do anúncio" autocomplete="off" enterkeyhint="done"></div><button class="btn" type="button" data-add="${key}">Anotar</button></div>
@@ -730,7 +774,7 @@ function usoDe(car){const n=norm(car.nome||""),base=D.modelos.padrao||FB.modelos
   return {cid:src.cid,est:src.est,rev60:src.rev60||5500,seguro:f*(base.seguro_pct||2.2)/100,pneus:f<120000?2000:f<160000?2400:2900,reserva:car.zero?0:80};}
 function simular(car,preco){const cc=ccVals(),fin=Math.max(0,preco-cc.troca-cc.entrada),parc=pmt(fin,cc.taxa/100,cc.n),u=usoDe(car),kmA=S.my.kmMes*12,p=S.my.city/100;
   const comb=kmA*(p/u.cid+(1-p)/u.est)*S.uso.gas/12,seg=u.seguro/12,ipva=(car.zero?preco:(car.fipe||preco))*S.uso.ipvaPct/100/12,manut=(u.rev60/60000*kmA+u.pneus/45000*kmA)/12+u.reserva;
-  const mes=parc+comb+seg+ipva+manut,at=compute().atual;return {parc,comb,seg,ipva,manut,mes,fin,impacto:at?mes-at:null,cabeParc:!S.my.lim||parc<=S.my.lim+0.5,cabeCash:!S.my.cash||cc.entrada<=S.my.cash+0.5};}
+  const mes=parc+comb+seg+ipva+manut,at=compute().atual;return {parc,comb,seg,ipva,manut,mes,fin,impacto:at?mes-at:null,passaOrc:!S.temCarro&&S.my.orcCarro&&mes>S.my.orcCarro,cabeParc:!S.my.lim||parc<=S.my.lim+0.5,cabeCash:!S.my.cash||cc.entrada<=S.my.cash+0.5};}
 const CC=[["entrada","Entrada"],["troca","Valor da troca"],["n","Parcelas"],["taxa","Taxa % ao mês"]];
 function buildCC(){const v=ccVals();$("ccFields").innerHTML=CC.filter(([k])=>k!=="troca"||S.temTroca).map(([k,l])=>money("cc-"+k,l,S.cc[k],fmtIn(v[k]))).join("");ccSum();}
 function ccSum(){const v=ccVals();$("ccSum").textContent=`Entrada ${brl(v.entrada)} · ${S.temTroca?"troca "+brl(v.troca):"sem troca"} · ${v.n}x a ${String(v.taxa).replace(".",",")}%`;}
@@ -739,23 +783,23 @@ function cardModelo(it,sim,best,acts){const imp=sim.impacto,big=imp!=null?(imp>0
   return `<div class="mc ${best?"best":""}"><div class="hd"><div><b>${esc(it.nome)}</b><small>${it.zero?"0 km":"Ano "+esc(it.ano)} · FIPE ${brl(it.fipe)}${best?' · <span class="tagok">menor impacto</span>':""}</small></div>
     <div class="imp num ${imp!=null?(imp>0?"up":"down"):""}">${big}<small>${imp!=null?"por mês vs hoje":"custo por mês"}</small></div></div>
     <div class="row3"><div><span>Parcela</span><b class="${sim.cabeParc?"":"up"}">${brl(sim.parc)}</b></div><div><span>Custo/mês</span><b>${brl(sim.mes)}</b></div><div><span>Uso/mês</span><b>${brl(sim.mes-sim.parc)}</b></div></div>
-    ${sim.cabeParc?"":`<p class="note tagbad">Parcela passa do seu limite de ${brl(S.my.lim)}.</p>`}${acts}</div>`;}
+    ${sim.cabeParc?"":`<p class="note tagbad">Parcela passa do seu limite de ${brl(S.my.lim)}.</p>`}${sim.passaOrc?`<p class="note tagbad">Passa ${brl(sim.mes-S.my.orcCarro)} do seu orçamento de ${brl(S.my.orcCarro)}.</p>`:""}${acts}</div>`;}
 function renderCmp(){const L=S.cmp.map(it=>({it,sim:simular(it,it.preco||it.fipe)})).sort((a,b)=>a.sim.mes-b.sim.mes);
   $("cmpHead").innerHTML=L.length?`<h3 class="title" style="font-size:1.25rem">Sua comparação (${L.length})</h3><p class="note">Do menor para o maior custo. Ajuste o preço que a loja pediu em cada um.</p>`:"";
   if(!L.length){$("cmpList").innerHTML=O.res.length?"":`<div class="empty">Busque pela marca e ano acima e toque em "+ Comparar" nos que te interessam.</div>`;return;}
-  $("cmpList").innerHTML=(compute().atual?"":`<p class="note">Preencha seu carro atual (aba Meu carro) para ver quanto cada um aumenta por mês.</p>`)+L.map(({it,sim},i)=>cardModelo(it,sim,i===0&&L.length>1,`
+  $("cmpList").innerHTML=(compute().atual||!S.temCarro?"":`<p class="note">Preencha seu carro atual (aba Meu carro) para ver quanto cada um aumenta por mês.</p>`)+L.map(({it,sim},i)=>cardModelo(it,sim,i===0&&L.length>1,`
     <div class="field"><span class="lbl">Preço pedido (em branco = FIPE)</span><div class="input"><span>R$</span><input data-preco="${it.id}" inputmode="decimal" placeholder="${fmtIn(it.fipe)}" value="${fmtIn(it.preco)}" autocomplete="off"></div></div>
     <details><summary class="link" style="display:block">Ver anúncios</summary><div style="margin-top:8px">${linksHTML(it)}</div></details>
     <div class="btns"><button class="btn sec" type="button" data-usar="${it.id}">Usar na proposta</button><button class="btn ghost" type="button" data-rmc="${it.id}">Remover</button></div>`)).join("");}
 $("cmpList").addEventListener("change",e=>{const id=e.target.dataset.preco;if(!id)return;const it=S.cmp.find(x=>String(x.id)===id);if(it){it.preco=parse(e.target.value);persist();renderCmp();}});
 $("cmpList").addEventListener("click",e=>{const r=e.target.dataset.rmc,u=e.target.dataset.usar;
-  if(r){S.cmp=S.cmp.filter(x=>String(x.id)!==r);persist();renderCmp();}
+  if(r){S.cmp=S.cmp.filter(x=>String(x.id)!==r);persist();renderCmp();badge();}
   if(u){const it=S.cmp.find(x=>String(x.id)===u);if(!it)return;const v=ccVals();S.car={nome:it.nome,fipe:it.fipe,ano:it.ano,zero:it.zero,mes:it.mes,codigo:it.codigo||""};
     S.prop.preco=it.preco||it.fipe;if(!S.prop.entrada)S.prop.entrada=v.entrada;if(!S.prop.n)S.prop.n=v.n;applyModelo();refillAll();renderMarket("car");go("proposta");toast("Carro levado para a proposta");}});
-function addCmp(car){if(!car.fipe)return;S.cmp.push({nome:car.nome,fipe:car.fipe,ano:car.ano,zero:car.zero,mes:car.mes||"",codigo:car.codigo||"",preco:0,id:Date.now()+Math.random()});persist();renderCmp();}
+function addCmp(car){if(!car.fipe)return;if(S.cmp.some(x=>x.codigo&&x.codigo===car.codigo&&x.ano===car.ano)){toast("Já está na comparação");return;}S.cmp.push({nome:car.nome,fipe:car.fipe,ano:car.ano,zero:car.zero,mes:car.mes||"",codigo:car.codigo||"",preco:0,id:Date.now()+Math.random()});persist();renderCmp();badge();}
 $("seg").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(!b)return;S.orc.view=b.dataset.v;persist();showView();});
 function showView(){const v=S.orc.view||"modelos";$("seg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v));["modelos","salvas"].forEach(x=>$("cv-"+x).hidden=x!==v);
-  if(v==="modelos"){buildCC();renderCmp();renderOrc();$("oLimL").textContent=compute().atual?"Aumento máx./mês":"Custo máx./mês";}}
+  if(v==="modelos"){buildCC();renderCmp();renderOrc();$("oLimL").textContent=compute().atual?"Aumento máx./mês":"Custo máx./mês";$("oLim").placeholder=!S.temCarro&&S.my.orcCarro?fmtIn(S.my.orcCarro):"opcional";}}
 
 /* ---------- busca por orçamento ---------- */
 let O={marca:null,anos:[],ano:null,res:[]};
@@ -795,7 +839,7 @@ async function consultar(){const prog=$("oProg"),lote=O.mods.slice(O.next,O.next
   prog.innerHTML=`<p class="note">${O.res.length} de ${O.mods.length} modelo${O.mods.length!==1?"s":""} consultado${O.mods.length!==1?"s":""}${O.fail?`. ${O.fail} falharam (a FIPE pode estar limitando; tente de novo em alguns minutos)`:""}${O.semFiltroAno?". A FIPE não filtrou por ano; alguns podem não existir nesse ano.":"."}</p>${falta>0?`<button class="btn sec" type="button" id="oMais" style="width:100%">Consultar mais ${Math.min(falta,MAXQ)}</button>`:""}`;
   renderOrc();}
 $("oProg").addEventListener("click",e=>{if(e.target.id==="oMais")consultar();});
-function renderOrc(){if(!O.res||!O.res.length){$("oRes").innerHTML="";return;}const at=compute().atual,lim=S.orc.lim;
+function renderOrc(){if(!O.res||!O.res.length){$("oRes").innerHTML="";return;}const at=compute().atual,lim=S.orc.lim||(!S.temCarro?S.my.orcCarro:0);
   const L=O.res.map(it=>({it,sim:simular(it,it.fipe)})).sort((a,b)=>a.sim.mes-b.sim.mes),val=x=>at?x.sim.mes-at:x.sim.mes;
   const ok=lim?L.filter(x=>val(x)<=lim):L,fora=lim?L.filter(x=>val(x)>lim):[];
   const card=(x,i)=>cardModelo(x.it,x.sim,false,`<div class="btns"><button class="btn sec" type="button" data-addc="${i}">+ Comparar</button><details style="grid-column:1/-1"><summary class="link" style="display:block">Ver anúncios</summary><div style="margin-top:8px">${linksHTML(x.it)}</div></details></div>`);
@@ -818,7 +862,7 @@ const pkTroca=picker("pk-troca","troca",{semZero:true,onPick:()=>{renderMarket("
   if(S.cep)$("cep").value=S.cep.slice(0,5)+"-"+S.cep.slice(5);
   $("useFields").querySelector("#m-mkt").placeholder=String(D.taxas.mensal_pct).replace(".",",");
   $("fontes").innerHTML=[["FIPE","ao vivo (API pública Parallelum)"],["Taxa média",`${String(D.taxas.mensal_pct).replace(".",",")}% a.m. · Banco Central · ${esc(D.taxas.ref)}`],["Combustível",`ANP · semana até ${esc(D.comb.ref)}`],["IPVA",`alíquota geral por estado · ${esc(D.ipva.ref)}`],["Consumo",`Inmetro e tabelas das marcas`],["CEP","ViaCEP"]].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join("");
-  renderN();buildUso();buildAtual();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");showView();go(TABS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
+  renderN();buildUso();buildAtual();syncTem();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");showView();go(TABS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
 </script>
 </body>
 </html>
