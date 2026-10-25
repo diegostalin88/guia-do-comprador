@@ -79,6 +79,8 @@ main{max-width:640px;margin:0 auto;padding:16px max(16px,env(safe-area-inset-rig
 .chips{display:flex;flex-wrap:wrap;gap:8px}
 .chip{border:1.5px solid var(--line);background:var(--raised);border-radius:999px;padding:10px 16px;min-height:44px;font-weight:700;cursor:pointer}
 .chip[aria-pressed="true"]{background:var(--accent);border-color:var(--accent);color:var(--accent-ink)}
+.chips.collapsed .chip:not([aria-pressed="true"]){display:none}
+.chips.collapsed .chip[aria-pressed="true"]::after{content:"  ▾ trocar";font-weight:600;opacity:.85;font-size:.85em}
 .carcard{display:flex;gap:14px;align-items:center;background:var(--accent-soft);border-radius:16px;padding:14px}
 .carcard .ic{width:48px;height:48px;border-radius:14px;background:var(--accent);color:var(--accent-ink);display:grid;place-items:center;flex:none}
 .carcard .ic svg{width:28px;height:28px}
@@ -157,7 +159,7 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .impact{display:flex;align-items:baseline;gap:10px;flex-wrap:wrap}
 .impact .big{font-family:var(--display);font-weight:700;font-size:2.4rem;line-height:1}
 .duo{display:grid;grid-template-columns:1fr 1fr;gap:10px}
-.seg{display:grid;grid-template-columns:repeat(3,1fr);gap:4px;background:var(--surface);border-radius:14px;padding:4px;box-shadow:0 1px 0 var(--line)}
+.seg{display:grid;grid-template-columns:repeat(2,1fr);gap:4px;background:var(--surface);border-radius:14px;padding:4px;box-shadow:0 1px 0 var(--line)}
 .seg button{border:0;background:none;border-radius:10px;min-height:44px;font-weight:700;color:var(--muted);cursor:pointer;font-size:.92rem}
 .seg button[aria-pressed="true"]{background:var(--accent);color:var(--accent-ink)}
 .links{display:grid;grid-template-columns:1fr 1fr;gap:8px}
@@ -249,14 +251,16 @@ body.sheet-open .sheet{transform:none}
   <section class="screen" id="sc-troca" hidden>
     <div>
       <h2 class="title">Seu carro atual</h2>
-      <p class="sub">Quanto a loja paga por ele e quanto ele custa hoje por mês.</p>
+      <p class="sub">Quanto ele vale, quanto custa hoje por mês e se vai entrar na troca.</p>
     </div>
     <div class="card">
-      <label class="switch">Vou dar um carro na troca<input type="checkbox" id="temTroca"></label>
+      <span class="lbl">Como vai pagar a entrada?</span>
+      <div class="seg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-troca="1">Carro na troca + dinheiro</button><button type="button" data-troca="0">Só dinheiro</button></div>
+      <p class="note" id="trocaNota"></p>
     </div>
+    <div class="card" id="pk-troca"></div>
+    <div class="card" id="mk-troca" hidden></div>
     <div id="trocaBox" class="screen">
-      <div class="card" id="pk-troca"></div>
-      <div class="card" id="mk-troca" hidden></div>
       <div class="card">
         <h3>Quanto a loja ofereceu?</h3>
         <div class="field"><div class="input"><span>R$</span><input id="aval" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
@@ -284,6 +288,7 @@ body.sheet-open .sheet{transform:none}
       <h2 class="title">O que o vendedor disse</h2>
       <p class="sub">Preencha enquanto ele fala. Não precisa saber a taxa: o app calcula pela parcela.</p>
     </div>
+    <div class="seg" style="grid-template-columns:1fr 1fr"><button type="button" data-troca="1">Com carro na troca</button><button type="button" data-troca="0">Só entrada</button></div>
     <div class="card">
       <div class="field"><span class="lbl">Preço do carro</span><div class="input"><span>R$</span><input id="preco" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
       <div class="field"><span class="lbl">Desconto extra (se houver)</span><div class="input"><span>R$</span><input id="desc" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
@@ -339,24 +344,24 @@ body.sheet-open .sheet{transform:none}
   <!-- COMPARAR -->
   <section class="screen" id="sc-comparar" hidden>
     <div><h2 class="title">Comparar</h2><p class="sub">Qual carro pesa menos no seu orçamento.</p></div>
-    <div class="seg" id="seg"><button type="button" data-v="modelos" aria-pressed="true">Modelos</button><button type="button" data-v="orc">Por orçamento</button><button type="button" data-v="salvas">Salvas</button></div>
+    <div class="seg" id="seg" style="grid-template-columns:1fr 1fr"><button type="button" data-v="modelos" aria-pressed="true">Modelos</button><button type="button" data-v="salvas">Salvas</button></div>
     <div class="screen" id="cv-modelos">
-      <details class="more" id="ccBox"><summary id="ccSum">Condições iguais para todos</summary><div class="body"><p class="note">Mesma entrada, troca, prazo e taxa para comparar de forma justa. Em branco, o app usa o valor mostrado.</p><div class="row2" id="ccFields"></div></div></details>
-      <div class="card"><h3>Adicionar modelo</h3><div id="pk-cmp"></div></div>
-      <div class="saved" id="cmpList"></div>
-    </div>
-    <div class="screen" id="cv-orc" hidden>
+      <details class="more" id="ccBox"><summary id="ccSum">Condições iguais para todos</summary><div class="body"><div class="seg" style="grid-template-columns:1fr 1fr;box-shadow:none;background:var(--raised)"><button type="button" data-troca="1">Com troca</button><button type="button" data-troca="0">Só entrada</button></div><p class="note">Mesma entrada, prazo e taxa para comparar de forma justa. Em branco, o app usa o valor mostrado.</p><div class="row2" id="ccFields"></div></div></details>
       <div class="card">
-        <h3>O que cabe no meu bolso</h3>
-        <p class="note">Escolha a marca e o ano. O app consulta a FIPE de cada modelo e mostra os que ficam dentro do seu limite, com as mesmas condições da aba Modelos.</p>
-        <div class="field"><span class="lbl">Marca</span><div class="input"><input class="txt" id="oMarca" placeholder="Digite a marca" autocomplete="off"></div><div class="sugs" id="oMarcaS" hidden></div></div>
+        <h3>Buscar carros</h3>
+        <p class="note">Só a marca e o ano já bastam. O app lista os modelos com o custo por mês de cada um.</p>
+        <div class="field"><span class="lbl">Marca</span><div class="input"><input class="txt" id="oMarca" placeholder="Digite a marca (ex.: nis)" autocomplete="off"></div><div class="sugs" id="oMarcaS" hidden></div></div>
         <div class="field" id="oAnosW" hidden><span class="lbl">Ano-modelo</span><div class="chips" id="oAnos"></div></div>
-        <div class="field"><span class="lbl">Nome contém (opcional)</span><div class="input"><input class="txt" id="oFiltro" placeholder="ex.: kicks, kait, sense" autocomplete="off"></div></div>
-        <div class="field"><span class="lbl" id="oLimL">Aumento máximo por mês</span><div class="input"><span>R$</span><input id="oLim" inputmode="decimal" placeholder="0" autocomplete="off"></div></div>
-        <button class="btn" type="button" id="oGo">Buscar modelos</button>
+        <div class="row2">
+          <div class="field"><span class="lbl">Modelo</span><div class="input"><input class="txt" id="oFiltro" placeholder="opcional" autocomplete="off"></div></div>
+          <div class="field"><span class="lbl" id="oLimL">Limite por mês</span><div class="input"><span>R$</span><input id="oLim" inputmode="decimal" placeholder="opcional" autocomplete="off"></div></div>
+        </div>
+        <button class="btn" type="button" id="oGo">Buscar</button>
         <div id="oProg"></div>
       </div>
       <div class="saved" id="oRes"></div>
+      <div id="cmpHead"></div>
+      <div class="saved" id="cmpList"></div>
     </div>
     <div class="screen" id="cv-salvas" hidden>
       <p class="sub">Propostas reais que você salvou, da mais barata para a mais cara. Ficam só neste celular.</p>
@@ -456,6 +461,9 @@ function go(t){S.tab=t;persist();TABS.forEach(x=>{$("sc-"+x).hidden=x!==t;docume
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);});
 
+/* chips de escolha única: ao escolher, esconde as outras opções; tocar de novo reabre */
+function chipPick(box,c){if(box.classList.contains("collapsed")&&c.getAttribute("aria-pressed")==="true"){box.classList.remove("collapsed");return false;}
+  box.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x===c)));box.classList.add("collapsed");return true;}
 /* ---------- seletor FIPE (marca e modelo digitáveis) ---------- */
 let MARCAS=null;
 const loadMarcas=()=>MARCAS||(MARCAS=getJSON(`${FIPE}/marcas`).catch(e=>{MARCAS=null;throw e;}));
@@ -484,14 +492,14 @@ function picker(rootId,key,opts){
     mi.addEventListener("input",()=>{marcaSel=null;q('[data-w="anos"]').hidden=true;q('[data-w="modelo"]').hidden=true;q('[data-w="comb"]').hidden=true;showMarcas();});
     /* 1) marca -> lista de anos */
     ms.addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;marcaSel={id:b.dataset.id,nome:b.dataset.n};mi.value=b.dataset.n;ms.hidden=true;err("");
-      ach.innerHTML=`<span class="note">Carregando anos…</span>`;q('[data-w="anos"]').hidden=false;q('[data-w="modelo"]').hidden=true;q('[data-w="comb"]').hidden=true;
+      ach.classList.remove("collapsed");ach.innerHTML=`<span class="note">Carregando anos…</span>`;q('[data-w="anos"]').hidden=false;q('[data-w="modelo"]').hidden=true;q('[data-w="comb"]').hidden=true;
       try{const r=await getJSON(`${FIPE}/marcas/${marcaSel.id}/modelos`);todos=lista(r);anosMarca=(r.anos||[]).map(a=>({codigo:String(a.codigo),nome:a.nome}));
         let anos=[...new Set(anosMarca.map(a=>anoNum(a.codigo)))];if(opts.semZero)anos=anos.filter(a=>a!=="32000");
         anos.sort((a,b)=>(b==="32000")-(a==="32000")||b-a);
         ach.innerHTML=anos.map(a=>`<button class="chip" type="button" data-y="${a}">${a==="32000"?"0 km":a}</button>`).join("")||`<span class="note">Sem anos disponíveis.</span>`;}
       catch(x){err("Não consegui carregar os anos dessa marca.");}});
     /* 2) ano -> só os modelos daquele ano */
-    ach.addEventListener("click",async e=>{const c=e.target.closest("[data-y]");if(!c)return;ach.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c));
+    ach.addEventListener("click",async e=>{const c=e.target.closest("[data-y]");if(!c||!chipPick(ach,c))return;
       anoSel=c.dataset.y;err("");q('[data-w="comb"]').hidden=true;q('[data-w="modelo"]').hidden=false;oi.value="";oi.placeholder="Carregando modelos…";oi.disabled=true;
       const cods=anosMarca.filter(a=>anoNum(a.codigo)===anoSel).map(a=>a.codigo),mapa=new Map();let falhou=0;
       await Promise.all(cods.map(async cod=>{let r=null;
@@ -557,8 +565,8 @@ $("limFields").innerHTML=LIM.map(([k,l])=>money("m-"+k,l,S.my[k])).join("");
 $("useFields").innerHTML=USE.map(([k,l])=>money("m-"+k,l,S.my[k],k==="mkt"?String(D.taxas.mensal_pct).replace(".",","):"0")).join("");
 const AT=[["cid","km/l cidade"],["est","km/l estrada"],["rev60","Revisões até 60 mil km (R$)"],["pneus","Jogo de pneus (R$)"],["reserva","Desgaste/imprevistos por mês (R$)"],["parc","Parcela que ainda paga (R$)"],["outros","Outros por mês (R$)"],["fipe","Valor FIPE (R$)"]];
 function autoAtual(){const n=norm(S.troca.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=n&&(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k))));
-  const src=hit||base,f=(S.temTroca&&S.troca.fipe)||S.atual.fipe||0;return {cid:src.cid,est:src.est,rev60:src.rev60||5500,pneus:f&&f<80000?1600:2000,reserva:100,nome:hit?hit.nome:""};}
-function buildAtual(){const semFipe=!(S.temTroca&&S.troca.fipe),au=autoAtual();
+  const src=hit||base,f=S.troca.fipe||S.atual.fipe||0;return {cid:src.cid,est:src.est,rev60:src.rev60||5500,pneus:f&&f<80000?1600:2000,reserva:100,nome:hit?hit.nome:""};}
+function buildAtual(){const semFipe=!S.troca.fipe,au=autoAtual();
   $("a-km").value=fmtIn(S.my.kmMes);$("a-seg").value=fmtIn(S.atual.seguro);
   $("atualFields").innerHTML=AT.filter(([k])=>k!=="fipe"||semFipe).map(([k,l])=>money("a-"+k,l,S.atual[k],k in au?fmtIn(au[k]):"0")).join("");
   $("atualNote").textContent=`${au.nome?"Consumo e revisões de "+au.nome:"Valores médios de um carro popular"}. Só mude se souber o valor certo; em branco, o app usa a estimativa.`;}
@@ -578,8 +586,9 @@ $("nOutro").addEventListener("input",()=>{S.prop.n=parse($("nOutro").value);pers
 const FEES=[["tc","Cadastro"],["reg","Registro"],["prest","Seguro prestamista"],["revp","Plano revisões"],["gar","Garantia estendida"],["acc","Acessórios"],["transf","Transferência"],["laudo","Laudo cautelar"],["outros","Outros"]];
 $("feeFields").innerHTML=FEES.map(([k,l])=>money("f-"+k,l,S.fees[k])).join("");
 $("feeFields").addEventListener("input",e=>{const k=e.target.id.replace("f-","");if(k in S.fees){S.fees[k]=parse(e.target.value);persist();update();}});
-$("temTroca").checked=S.temTroca;const syncTroca=()=>{$("trocaBox").hidden=!S.temTroca;};syncTroca();
-$("temTroca").addEventListener("change",()=>{S.temTroca=$("temTroca").checked;if(!S.temTroca){S.prop.aval=0;S.prop.bonus=0;$("aval").value="";$("bonus").value="";}syncTroca();buildAtual();persist();update();});
+const syncTroca=()=>{$("trocaBox").hidden=!S.temTroca;document.querySelectorAll("[data-troca]").forEach(b=>b.setAttribute("aria-pressed",String(b.dataset.troca==="1"===S.temTroca)));
+  $("trocaNota").textContent=S.temTroca?"A loja fica com seu carro e o valor dele abate do preço.":"Seu carro fica fora da negociação. Só o dinheiro da entrada abate do preço (se vender por fora, some o valor na entrada).";};syncTroca();
+document.addEventListener("click",e=>{const b=e.target.closest("[data-troca]");if(!b)return;S.temTroca=b.dataset.troca==="1";syncTroca();persist();if($("ccFields"))buildCC();renderCmp&&renderCmp();renderOrc&&renderOrc();update();});
 $("loja").value=S.loja||"";$("loja").addEventListener("input",()=>{S.loja=$("loja").value;persist();});
 
 /* ---------- cálculo ---------- */
@@ -591,7 +600,7 @@ function compute(){const P=S.prop,U=S.uso,M=S.my,c=S.car,t=S.temTroca?S.troca:CA
   const kmA=M.kmMes*12,p=M.city/100,comb=U.cid&&U.est?kmA*(p/U.cid+(1-p)/U.est)*U.gas/12:0,seg=U.seguro/12;
   const baseIpva=c.zero?(Math.max(0,P.preco-P.desc)||c.fipe):(c.fipe||P.preco),ipva=baseIpva*U.ipvaPct/100/12;
   const manut=(U.rev60/60000*kmA+U.pneus/45000*kmA)/12+(c.zero?0:U.reserva),mes=parc+comb+seg+ipva+manut;
-  const AA=S.atual,au=autoAtual(),g=k=>AA[k]||au[k],af=(S.temTroca&&S.troca.fipe)||AA.fipe||0;
+  const AA=S.atual,au=autoAtual(),g=k=>AA[k]||au[k],af=S.troca.fipe||AA.fipe||0;
   const A={parc:AA.parc,seg:AA.seguro/12,comb:kmA*(p/g("cid")+(1-p)/g("est"))*U.gas/12,ipva:af*U.ipvaPct/100/12,rev:g("rev60")/60000*kmA/12,pneus:g("pneus")/45000*kmA/12,res:AA.reserva||au.reserva,outros:AA.outros};
   A.manut=A.rev+A.pneus+A.res;A.mes=A.parc+A.seg+A.comb+A.ipva+A.manut+A.outros;const atual=kmA>0&&(AA.seguro>0||af>0)?A.mes:0;
   return {aval,bonus,fees,baseFin,fin,parc,r,esperada,oculto,parcelas,usadoValor,efetivo,comb,seg,ipva,manut,mes,atual,A,has:parc>0&&P.n>0};}
@@ -686,7 +695,7 @@ $("save").addEventListener("click",()=>{const R=compute(),ti=trocaInfo();SAVED.p
   st:JSON.parse(JSON.stringify({atual:S.atual,atualNome:S.atualNome,car:S.car,troca:S.troca,temTroca:S.temTroca,uso:S.uso,prop:S.prop,fees:S.fees,loja:S.loja,usoFlag:S.usoFlag,usoNome:S.usoNome}))});persist();renderSaved();toast("Proposta salva");});
 $("copy").addEventListener("click",()=>{const t=summary(compute()),ok=()=>toast("Copiado. Cole no WhatsApp");const fb=()=>{const a=document.createElement("textarea");a.value=t;a.style.position="fixed";a.style.opacity="0";document.body.appendChild(a);a.select();try{document.execCommand("copy");ok();}catch(e){toast("Não deu para copiar");}a.remove();};
   if(navigator.clipboard&&navigator.clipboard.writeText)navigator.clipboard.writeText(t).then(ok).catch(fb);else fb();});
-function refillAll(){["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>$(k).value=fmtIn(S.prop[k]));FEES.forEach(([k])=>$("f-"+k).value=fmtIn(S.fees[k]));$("loja").value=S.loja||"";$("temTroca").checked=S.temTroca;syncTroca();renderN();pkNovo.render();pkTroca.render();buildUso();buildAtual();update();}
+function refillAll(){["preco","desc","entrada","parc","taxa","aval","bonus"].forEach(k=>$(k).value=fmtIn(S.prop[k]));FEES.forEach(([k])=>$("f-"+k).value=fmtIn(S.fees[k]));$("loja").value=S.loja||"";syncTroca();renderN();pkNovo.render();pkTroca.render();buildUso();buildAtual();update();}
 $("clear").addEventListener("click",()=>{S.prop={...DEF.prop};S.fees={...DEF.fees};S.loja="";S.car={...CAR0};persist();refillAll();go("carro");toast("Nova proposta");});
 $("saved").addEventListener("click",e=>{const l=e.target.dataset.load,d=e.target.dataset.del;if(d){SAVED=SAVED.filter(s=>String(s.id)!==d);persist();renderSaved();}
   if(l){const s=SAVED.find(x=>String(x.id)===l);if(!s)return;Object.assign(S,JSON.parse(JSON.stringify(s.st)));persist();refillAll();go("resultado");toast("Proposta aberta");}});
@@ -716,15 +725,15 @@ function renderMarket(key){const el=$("mk-"+key),c=S[key];if(!c.nome){el.hidden=
   el.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mk-"+key+"-in"){e.preventDefault();add();}});});
 
 /* ---------- comparar modelos ---------- */
-function ccVals(){const c=S.cc;return {entrada:c.entrada||S.prop.entrada||S.my.cash||0,troca:c.troca||(S.temTroca?(S.prop.aval+S.prop.bonus)||Math.round((S.troca.fipe||0)*0.9):0),n:c.n||S.prop.n||36,taxa:c.taxa||S.my.mkt||D.taxas.mensal_pct||1.97};}
+function ccVals(){const c=S.cc;return {entrada:c.entrada||S.prop.entrada||S.my.cash||0,troca:S.temTroca?(c.troca||(S.prop.aval+S.prop.bonus)||Math.round((S.troca.fipe||0)*0.9)):0,n:c.n||S.prop.n||36,taxa:c.taxa||S.my.mkt||D.taxas.mensal_pct||1.97};}
 function usoDe(car){const n=norm(car.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k)))),src=hit||base,f=car.fipe||0;
   return {cid:src.cid,est:src.est,rev60:src.rev60||5500,seguro:f*(base.seguro_pct||2.2)/100,pneus:f<120000?2000:f<160000?2400:2900,reserva:car.zero?0:80};}
 function simular(car,preco){const cc=ccVals(),fin=Math.max(0,preco-cc.troca-cc.entrada),parc=pmt(fin,cc.taxa/100,cc.n),u=usoDe(car),kmA=S.my.kmMes*12,p=S.my.city/100;
   const comb=kmA*(p/u.cid+(1-p)/u.est)*S.uso.gas/12,seg=u.seguro/12,ipva=(car.zero?preco:(car.fipe||preco))*S.uso.ipvaPct/100/12,manut=(u.rev60/60000*kmA+u.pneus/45000*kmA)/12+u.reserva;
   const mes=parc+comb+seg+ipva+manut,at=compute().atual;return {parc,comb,seg,ipva,manut,mes,fin,impacto:at?mes-at:null,cabeParc:!S.my.lim||parc<=S.my.lim+0.5,cabeCash:!S.my.cash||cc.entrada<=S.my.cash+0.5};}
 const CC=[["entrada","Entrada"],["troca","Valor da troca"],["n","Parcelas"],["taxa","Taxa % ao mês"]];
-function buildCC(){const v=ccVals();$("ccFields").innerHTML=CC.map(([k,l])=>money("cc-"+k,l,S.cc[k],fmtIn(v[k]))).join("");ccSum();}
-function ccSum(){const v=ccVals();$("ccSum").textContent=`Entrada ${brl(v.entrada)} · troca ${brl(v.troca)} · ${v.n}x a ${String(v.taxa).replace(".",",")}%`;}
+function buildCC(){const v=ccVals();$("ccFields").innerHTML=CC.filter(([k])=>k!=="troca"||S.temTroca).map(([k,l])=>money("cc-"+k,l,S.cc[k],fmtIn(v[k]))).join("");ccSum();}
+function ccSum(){const v=ccVals();$("ccSum").textContent=`Entrada ${brl(v.entrada)} · ${S.temTroca?"troca "+brl(v.troca):"sem troca"} · ${v.n}x a ${String(v.taxa).replace(".",",")}%`;}
 $("ccFields").addEventListener("input",e=>{const k=e.target.id.replace("cc-","");if(k in S.cc){S.cc[k]=parse(e.target.value);persist();ccSum();renderCmp();}});
 function cardModelo(it,sim,best,acts){const imp=sim.impacto,big=imp!=null?(imp>0?"+":"−")+brl(Math.abs(imp)).replace("−",""):brl(sim.mes);
   return `<div class="mc ${best?"best":""}"><div class="hd"><div><b>${esc(it.nome)}</b><small>${it.zero?"0 km":"Ano "+esc(it.ano)} · FIPE ${brl(it.fipe)}${best?' · <span class="tagok">menor impacto</span>':""}</small></div>
@@ -732,7 +741,8 @@ function cardModelo(it,sim,best,acts){const imp=sim.impacto,big=imp!=null?(imp>0
     <div class="row3"><div><span>Parcela</span><b class="${sim.cabeParc?"":"up"}">${brl(sim.parc)}</b></div><div><span>Custo/mês</span><b>${brl(sim.mes)}</b></div><div><span>Uso/mês</span><b>${brl(sim.mes-sim.parc)}</b></div></div>
     ${sim.cabeParc?"":`<p class="note tagbad">Parcela passa do seu limite de ${brl(S.my.lim)}.</p>`}${acts}</div>`;}
 function renderCmp(){const L=S.cmp.map(it=>({it,sim:simular(it,it.preco||it.fipe)})).sort((a,b)=>a.sim.mes-b.sim.mes);
-  if(!L.length){$("cmpList").innerHTML=`<div class="empty">Adicione 2 ou mais modelos para comparar.<br>Ex.: Kicks 0 km, Kait 0 km, Boreal 2025.</div>`;return;}
+  $("cmpHead").innerHTML=L.length?`<h3 class="title" style="font-size:1.25rem">Sua comparação (${L.length})</h3><p class="note">Do menor para o maior custo. Ajuste o preço que a loja pediu em cada um.</p>`:"";
+  if(!L.length){$("cmpList").innerHTML=O.res.length?"":`<div class="empty">Busque pela marca e ano acima e toque em "+ Comparar" nos que te interessam.</div>`;return;}
   $("cmpList").innerHTML=(compute().atual?"":`<p class="note">Preencha seu carro atual (aba Meu carro) para ver quanto cada um aumenta por mês.</p>`)+L.map(({it,sim},i)=>cardModelo(it,sim,i===0&&L.length>1,`
     <div class="field"><span class="lbl">Preço pedido (em branco = FIPE)</span><div class="input"><span>R$</span><input data-preco="${it.id}" inputmode="decimal" placeholder="${fmtIn(it.fipe)}" value="${fmtIn(it.preco)}" autocomplete="off"></div></div>
     <details><summary class="link" style="display:block">Ver anúncios</summary><div style="margin-top:8px">${linksHTML(it)}</div></details>
@@ -744,8 +754,8 @@ $("cmpList").addEventListener("click",e=>{const r=e.target.dataset.rmc,u=e.targe
     S.prop.preco=it.preco||it.fipe;if(!S.prop.entrada)S.prop.entrada=v.entrada;if(!S.prop.n)S.prop.n=v.n;applyModelo();refillAll();renderMarket("car");go("proposta");toast("Carro levado para a proposta");}});
 function addCmp(car){if(!car.fipe)return;S.cmp.push({nome:car.nome,fipe:car.fipe,ano:car.ano,zero:car.zero,mes:car.mes||"",codigo:car.codigo||"",preco:0,id:Date.now()+Math.random()});persist();renderCmp();}
 $("seg").addEventListener("click",e=>{const b=e.target.closest("[data-v]");if(!b)return;S.orc.view=b.dataset.v;persist();showView();});
-function showView(){const v=S.orc.view||"modelos";$("seg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v));["modelos","orc","salvas"].forEach(x=>$("cv-"+x).hidden=x!==v);
-  if(v==="modelos"){buildCC();renderCmp();}if(v==="orc")$("oLimL").textContent=compute().atual?"Aumento máximo por mês (vs seu carro hoje)":"Custo máximo por mês (tudo incluído)";}
+function showView(){const v=S.orc.view||"modelos";$("seg").querySelectorAll("button").forEach(b=>b.setAttribute("aria-pressed",b.dataset.v===v));["modelos","salvas"].forEach(x=>$("cv-"+x).hidden=x!==v);
+  if(v==="modelos"){buildCC();renderCmp();renderOrc();$("oLimL").textContent=compute().atual?"Aumento máx./mês":"Custo máx./mês";}}
 
 /* ---------- busca por orçamento ---------- */
 let O={marca:null,anos:[],ano:null,res:[]};
@@ -759,37 +769,40 @@ document.addEventListener("click",e=>{if(!e.target.closest("#oMarca,#oMarcaS"))$
 $("oMarcaS").addEventListener("click",async e=>{const b=e.target.closest("button[data-id]");if(!b)return;O.marca={id:b.dataset.id,nome:b.dataset.n};$("oMarca").value=b.dataset.n;$("oMarcaS").hidden=true;
   try{const r=await getJSON(`${FIPE}/marcas/${O.marca.id}/modelos`);O.todos=(r.modelos||[]).map(m=>({codigo:String(m.codigo),nome:m.nome}));O.anos=(r.anos||[]).map(a=>String(a.codigo));
     const ys=[...new Set(O.anos.map(c=>c.split("-")[0]))].sort((a,b)=>(b==="32000")-(a==="32000")||b-a);
-    $("oAnos").innerHTML=ys.map(y=>`<button class="chip" type="button" data-y="${y}">${y==="32000"?"0 km":y}</button>`).join("");$("oAnosW").hidden=false;O.ano=null;}
+    $("oAnos").classList.remove("collapsed");$("oAnos").innerHTML=ys.map(y=>`<button class="chip" type="button" data-y="${y}">${y==="32000"?"0 km":y}</button>`).join("");$("oAnosW").hidden=false;O.ano=null;}
   catch(x){$("oProg").innerHTML=`<p class="err">Não consegui carregar os anos.</p>`;}});
-$("oAnos").addEventListener("click",e=>{const c=e.target.closest("[data-y]");if(!c)return;O.ano=c.dataset.y;$("oAnos").querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",x===c));});
+$("oAnos").addEventListener("click",e=>{const c=e.target.closest("[data-y]");if(!c||!chipPick($("oAnos"),c))return;O.ano=c.dataset.y;});
 $("oLim").value=fmtIn(S.orc.lim);$("oFiltro").value=S.orc.filtro||"";
 $("oLim").addEventListener("input",()=>{S.orc.lim=parse($("oLim").value);persist();renderOrc();});
 $("oFiltro").addEventListener("input",()=>{S.orc.filtro=$("oFiltro").value;persist();});
 const MAXQ=30;
 $("oGo").addEventListener("click",async()=>{if(!O.marca||!O.ano){toast("Escolha a marca e o ano");return;}
-  const prog=$("oProg"),cods=O.anos.filter(c=>c.split("-")[0]===O.ano),mapa=new Map();prog.innerHTML=`<p class="note">Buscando modelos…</p>`;
+  const prog=$("oProg"),cods=O.anos.filter(c=>c.split("-")[0]===O.ano),mapa=new Map();prog.innerHTML=`<p class="note">Buscando modelos…</p>`;O.res=[];renderOrc();
   await Promise.all(cods.map(async cod=>{let r=null;try{r=await getJSON(`${FIPE}/marcas/${O.marca.id}/anos/${cod}/modelos`);}catch(x){}
     let l=Array.isArray(r)?r:(r&&r.modelos)||[];if(!l.length){try{r=await getJSON(`https://fipe.parallelum.com.br/api/v2/cars/brands/${O.marca.id}/years/${cod}/models`);l=Array.isArray(r)?r:[];}catch(x){}}
     l.forEach(m=>{const id=String(m.codigo??m.code);if(!mapa.has(id))mapa.set(id,{id,nome:m.nome??m.name,cod});});}));
-  let mods=[...mapa.values()];const semFiltroAno=!mods.length;if(semFiltroAno)mods=O.todos.map(m=>({id:m.codigo,nome:m.nome,cod:cods[0]}));
+  let mods=[...mapa.values()];O.semFiltroAno=!mods.length;if(O.semFiltroAno)mods=(O.todos||[]).map(m=>({id:m.codigo,nome:m.nome,cod:cods[0]}));
   const w=norm(S.orc.filtro||"").split(/\s+/).filter(Boolean);if(w.length)mods=mods.filter(m=>w.every(x=>norm(m.nome).includes(x)));
-  const total=mods.length;mods=mods.slice(0,MAXQ);O.res=[];O.total=total;let done=0,fail=0;
-  const tick=()=>{prog.innerHTML=`<div class="progress"><i style="width:${mods.length?done/mods.length*100:100}%"></i></div><p class="note">Consultando FIPE ${done}/${mods.length}…</p>`;};tick();
-  let i=0;const worker=async()=>{while(i<mods.length){const m=mods[i++],k=`${O.marca.id}|${m.id}|${m.cod}`;let v=FC[k];
+  O.mods=mods;O.next=0;O.fail=0;await consultar();});
+async function consultar(){const prog=$("oProg"),lote=O.mods.slice(O.next,O.next+MAXQ);O.next+=lote.length;let done=0;
+  const tick=()=>{prog.innerHTML=`<div class="progress"><i style="width:${lote.length?done/lote.length*100:100}%"></i></div><p class="note">Consultando FIPE ${done}/${lote.length}…</p>`;};tick();
+  let i=0;const worker=async()=>{while(i<lote.length){const m=lote[i++],k=`${O.marca.id}|${m.id}|${m.cod}`;let v=FC[k];
     if(!v){try{const r=await getJSON(`${FIPE}/marcas/${O.marca.id}/modelos/${m.id}/anos/${m.cod}`);const zero=String(r.AnoModelo)==="32000";
-      v={nome:`${r.Marca} ${r.Modelo}`,fipe:parse(r.Valor),ano:zero?0:r.AnoModelo,zero,mes:(r.MesReferencia||"").trim(),codigo:r.CodigoFipe||"",t:Date.now()};FC[k]=v;}catch(x){fail++;}}
+      v={nome:`${r.Marca} ${r.Modelo}`,fipe:parse(r.Valor),ano:zero?0:r.AnoModelo,zero,mes:(r.MesReferencia||"").trim(),codigo:r.CodigoFipe||"",t:Date.now()};FC[k]=v;}catch(x){O.fail++;}}
     if(v)O.res.push(v);done++;tick();}};
   await Promise.all([worker(),worker(),worker(),worker()]);saveFC();
-  prog.innerHTML=`<p class="note">${O.res.length} modelo${O.res.length!==1?"s":""} consultado${O.res.length!==1?"s":""}${total>MAXQ?` (de ${total}; use "Nome contém" para ver outros)`:""}${fail?`, ${fail} falharam (a FIPE pode estar limitando; tente de novo em alguns minutos)`:""}${semFiltroAno?". A FIPE não filtrou por ano; alguns podem não existir nesse ano.":"."}</p>`;
-  renderOrc();});
-function renderOrc(){if(!O.res.length){$("oRes").innerHTML="";return;}const at=compute().atual,lim=S.orc.lim;
+  const falta=O.mods.length-O.next;
+  prog.innerHTML=`<p class="note">${O.res.length} de ${O.mods.length} modelo${O.mods.length!==1?"s":""} consultado${O.mods.length!==1?"s":""}${O.fail?`. ${O.fail} falharam (a FIPE pode estar limitando; tente de novo em alguns minutos)`:""}${O.semFiltroAno?". A FIPE não filtrou por ano; alguns podem não existir nesse ano.":"."}</p>${falta>0?`<button class="btn sec" type="button" id="oMais" style="width:100%">Consultar mais ${Math.min(falta,MAXQ)}</button>`:""}`;
+  renderOrc();}
+$("oProg").addEventListener("click",e=>{if(e.target.id==="oMais")consultar();});
+function renderOrc(){if(!O.res||!O.res.length){$("oRes").innerHTML="";return;}const at=compute().atual,lim=S.orc.lim;
   const L=O.res.map(it=>({it,sim:simular(it,it.fipe)})).sort((a,b)=>a.sim.mes-b.sim.mes),val=x=>at?x.sim.mes-at:x.sim.mes;
   const ok=lim?L.filter(x=>val(x)<=lim):L,fora=lim?L.filter(x=>val(x)>lim):[];
   const card=(x,i)=>cardModelo(x.it,x.sim,false,`<div class="btns"><button class="btn sec" type="button" data-addc="${i}">+ Comparar</button><details style="grid-column:1/-1"><summary class="link" style="display:block">Ver anúncios</summary><div style="margin-top:8px">${linksHTML(x.it)}</div></details></div>`);
   O.view=[...ok,...fora];
-  $("oRes").innerHTML=(lim?`<h3 class="title" style="font-size:1.2rem">${ok.length} cabe${ok.length!==1?"m":""} no limite</h3>`:"")+ok.map((x,i)=>card(x,i)).join("")
+  $("oRes").innerHTML=`<h3 class="title" style="font-size:1.25rem">${lim?`${ok.length} cabe${ok.length!==1?"m":""} no limite`:"Resultados"}</h3>`+ok.map((x,i)=>card(x,i)).join("")
     +(fora.length?`<details class="more"><summary>Fora do limite (${fora.length})</summary><div class="body">${fora.map((x,i)=>card(x,ok.length+i)).join("")}</div></details>`:"");}
-$("oRes").addEventListener("click",e=>{const i=e.target.dataset.addc;if(i==null)return;addCmp(O.view[+i].it);toast("Adicionado na aba Modelos");});
+$("oRes").addEventListener("click",e=>{const i=e.target.dataset.addc;if(i==null)return;addCmp(O.view[+i].it);toast("Adicionado à comparação");});
 
 /* ---------- app instalável (Android: "Instalar"; iPhone: Compartilhar > Adicionar à Tela de Início) ---------- */
 let instEv=null;
@@ -800,7 +813,6 @@ if("serviceWorker" in navigator&&location.protocol==="https:")window.addEventLis
 
 /* ---------- inicialização ---------- */
 const pkNovo=picker("pk-novo","car",{onPick:()=>{renderMarket("car");if(S.car.fipe)applyModelo();else update();}});
-const pkCmp=picker("pk-cmp","cmpPick",{onPick:()=>{if(S.cmpPick.fipe){addCmp(S.cmpPick);S.cmpPick={...CAR0};persist();pkCmp.render();toast("Modelo adicionado");}}});
 const pkTroca=picker("pk-troca","troca",{semZero:true,onPick:()=>{renderMarket("troca");if(S.troca.fipe)applyAtual();else{buildAtual();update();}}});
 (async()=>{await Promise.all([["ipva","data/ipva.json"],["taxas","data/taxas.json"],["comb","data/combustivel.json"],["modelos","data/modelos.json"]].map(async([k,u])=>{try{D[k]=await getJSON(u,8000);}catch(e){}}));
   if(S.cep)$("cep").value=S.cep.slice(0,5)+"-"+S.cep.slice(5);
