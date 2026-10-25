@@ -191,6 +191,12 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .ck span b{display:block;font-weight:700}.ck span small{display:block;color:var(--muted);font-size:.88rem;line-height:1.35}
 .ck .opt{font-weight:400;color:var(--muted);font-size:.8rem}
 .placa{font-family:var(--mono);font-size:22px;letter-spacing:.12em;text-transform:uppercase}
+.thumbs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+.thumbs .th{position:relative;border-radius:12px;overflow:hidden;background:var(--raised);aspect-ratio:4/3}
+.thumbs img{width:100%;height:100%;object-fit:cover;display:block}
+.thumbs .th>span{position:absolute;top:6px;left:6px;background:rgba(0,0,0,.65);color:#fff;font-weight:700;font-size:.8rem;border-radius:8px;padding:2px 7px}
+.thumbs .th div{position:absolute;inset:auto 0 0 0;display:grid;grid-template-columns:repeat(3,1fr);background:rgba(0,0,0,.55)}
+.thumbs .th div button{border:0;background:none;color:#fff;font-size:1.2rem;min-height:36px;cursor:pointer}
 .progress{height:6px;border-radius:3px;background:var(--raised);overflow:hidden}.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
 .saved .sv{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:16px;background:var(--surface);box-shadow:0 1px 0 var(--line)}
 .saved{display:flex;flex-direction:column;gap:10px}
@@ -200,6 +206,7 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .sv.best{outline:2px solid var(--ok)}
 .empty{text-align:center;color:var(--muted);padding:30px 10px}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav) + var(--sum) + env(safe-area-inset-bottom,0px) + 14px);transform:translateX(-50%) translateY(20px);opacity:0;background:var(--ink);color:var(--surface);padding:12px 18px;border-radius:999px;font-weight:700;transition:all .25s;z-index:40;pointer-events:none;white-space:nowrap}
+body.nosum .toast{bottom:calc(var(--nav) + env(safe-area-inset-bottom,0px) + 14px)}
 .toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 
 /* resumo fixo + abas */
@@ -287,6 +294,11 @@ body.sheet-open .sheet{transform:none}
     </div>
     <div class="card" id="pk-troca"></div>
     <div class="card" id="mk-troca" hidden></div>
+    <div class="card" id="vendaCard" hidden>
+      <h3>Vender por conta própria?</h3>
+      <p class="note" id="vendaNota">Costuma render mais que a troca na loja. O app monta o anúncio com título, descrição, preço sugerido e fotos.</p>
+      <button class="btn sec" type="button" data-go="anuncio">Montar anúncio</button>
+    </div>
     <div id="trocaBox" class="screen">
       <div class="card">
         <h3>Quanto a loja ofereceu?</h3>
@@ -335,6 +347,13 @@ body.sheet-open .sheet{transform:none}
       <div class="body"><p class="note">Se ele não detalhar, deixe em branco. A taxa real pela parcela já mostra o que está embutido.</p><div id="feeFields" class="row2"></div></div>
     </details>
     <button class="btn" type="button" data-go="resultado">Ver resultado</button>
+  </section>
+
+  <!-- ANUNCIAR -->
+  <section class="screen" id="sc-anuncio" hidden>
+    <div><button class="link" type="button" data-go="troca">‹ Voltar para Meu carro</button>
+      <h2 class="title">Anunciar meu carro</h2><p class="sub">Preencha uma vez. O app monta título, descrição, preço e fotos para você colar na OLX, Webmotors, Marketplace ou mandar no WhatsApp.</p></div>
+    <div class="screen" id="anunBody"></div>
   </section>
 
   <!-- RESULTADO -->
@@ -449,6 +468,7 @@ const DEF={tab:"carro",uf:"",cidade:"",cep:"",temTroca:true,temCarro:true,
   fees:{tc:0,reg:0,prest:0,revp:0,gar:0,acc:0,transf:0,laudo:0,outros:0},
   my:{lim:0,cash:0,kmMes:1300,city:60,mkt:0,orcCarro:0},loja:"",
   atual:{cid:0,est:0,seguro:0,rev60:0,pneus:0,reserva:0,parc:0,outros:0,fipe:0},atualNome:"",
+  anun:{km:0,cor:"",cambio:"",cond:[],opc:[],extra:"",preco:0,descEdit:false},
   cmp:[],cc:{entrada:0,troca:0,n:0,taxa:0},cmpPick:{nome:"",fipe:0,ano:0,zero:true,mes:"",codigo:""},orc:{lim:0,filtro:"",view:"modelos"}};
 const KEY="guiaComprador.v2";
 let S=JSON.parse(JSON.stringify(DEF)),SAVED=[];
@@ -474,10 +494,11 @@ const money=(id,label,val,ph)=>`<div class="field"><span class="lbl">${label}</s
 function hilite(text,q){if(!q)return esc(text);let out=esc(text);for(const w of q.split(/\s+/).filter(Boolean)){const i=norm(out).indexOf(norm(w));if(i>=0)out=out.slice(0,i)+"<b>"+out.slice(i,i+w.length)+"</b>"+out.slice(i+w.length);}return out;}
 
 /* ---------- navegação ---------- */
-const TABS=["carro","troca","proposta","resultado","comparar"];
-function go(t){S.tab=t;persist();TABS.forEach(x=>{$("sc-"+x).hidden=x!==t;document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===t?"page":"false");});
-  $("sum").style.display=(t==="resultado"||t==="comparar")?"none":"flex";
-  document.body.style.paddingBottom=(t==="resultado"||t==="comparar")?"calc(var(--nav) + env(safe-area-inset-bottom,0px) + 16px)":"";
+const TABS=["carro","troca","proposta","resultado","comparar"],TELAS=[...TABS,"anuncio"];
+function go(t){S.tab=t;persist();const nav=t==="anuncio"?"troca":t;TELAS.forEach(x=>{$("sc-"+x).hidden=x!==t;});TABS.forEach(x=>document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===nav?"page":"false"));
+  const semSum=t==="resultado"||t==="comparar"||t==="anuncio";$("sum").style.display=semSum?"none":"flex";document.body.classList.toggle("nosum",semSum);
+  if(t==="anuncio")renderAnun();
+  document.body.style.paddingBottom=semSum?"calc(var(--nav) + env(safe-area-inset-bottom,0px) + 16px)":"";
   window.scrollTo({top:0});if(t==="resultado")update();if(t==="comparar")showView();if(t==="carro"){renderMarket("car");renderHist();}if(t==="troca")renderMarket("troca");}
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
 document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(!g)return;go(g.dataset.go);if(g.dataset.scroll)setTimeout(()=>{const el=$(g.dataset.scroll);if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-80});},50);});
@@ -643,6 +664,7 @@ function grade(R){const mk=mkt(),r=R.r;if(!R.has)return["","Falta a parcela","Di
 function trocaInfo(){const t=S.troca,a=S.prop.aval+S.prop.bonus;if(!S.temTroca||!t.fipe||!a)return null;const q=a/t.fipe;
   return {q,dif:t.fipe-a,cls:q>=0.95?"ok":q>=0.88?"warn":"bad",lab:q>=0.95?"Avaliação justa":q>=0.88?"Um pouco abaixo":"Muito abaixo da FIPE"};}
 function renderTroca(){const t=S.troca,el=$("trocaCmp"),ti=trocaInfo();
+  $("vendaCard").hidden=!t.nome;if(t.nome){const av=avg(t.anuncios),of=S.prop.aval+S.prop.bonus,ref=av||t.fipe;$("vendaNota").textContent=of&&ref>of?`A loja ofereceu ${brl(of)}. Carros iguais ao seu ${av?"são anunciados por":"valem na FIPE"} ${brl(ref)}: ${brl(ref-of)} a mais se vender por fora. O app monta o anúncio para você.`:"Costuma render mais que a troca na loja. O app monta o anúncio com título, descrição, preço sugerido e fotos.";}
   if(!t.fipe){el.innerHTML=`<p class="note">Escolha o carro acima para comparar com a FIPE.</p>`;return;}
   if(!ti){el.innerHTML=`<p class="note">FIPE do seu carro: <b class="num">${brl(t.fipe)}</b>. Digite quanto a loja ofereceu.</p>`;return;}
   el.innerHTML=`<div class="gauge"><i style="width:${Math.min(100,ti.q*100).toFixed(1)}%;background:var(--${ti.cls})"></i></div>
@@ -804,6 +826,88 @@ function renderSemi(){const el=$("semiCheck"),c=S.car;if(c.zero||!c.nome){el.hid
   el.innerHTML=`<h3>Checklist do seminovo</h3><div class="progress"><i style="width:${(1-falta.length/CHECK.filter(x=>!x[3]).length)*100}%;background:var(--${falta.length?"warn":"ok"})"></i></div>
    ${falta.length?`<ul class="alerts">${falta.map(([k,t])=>`<li class="${k==="laudo"||k==="detran"?"bad":"warn"}">Falta: ${t}</li>`).join("")}</ul>`:`<ul class="alerts"><li class="ok">Todas as verificações essenciais feitas.</li></ul>`}
    <button class="btn sec" type="button" data-go="carro" data-scroll="hist">Abrir checklist</button>`;}
+/* ---------- anunciar meu carro (gera título, descrição, preço e fotos para colar nas plataformas) ---------- */
+const OPC=["Ar-condicionado","Direção elétrica","Vidros elétricos","Travas elétricas","Multimídia","Android Auto/CarPlay","Câmera de ré","Sensor de estacionamento","Rodas de liga leve","Piloto automático","Bancos em couro","Partida sem chave","Teto solar","Faróis de LED"];
+const COND=["Único dono","Revisões em concessionária","Manual e chave reserva","IPVA pago","Sem multas","Nunca batido","Pneus novos","Na garantia de fábrica"];
+const FOTOGUIA=["Frente em diagonal (foto de capa)","Traseira em diagonal","Lateral inteira","Painel ligado mostrando o km","Bancos da frente","Banco de trás","Porta-malas aberto","Pneus e rodas","Motor","Detalhe de qualquer marca ou risco (passa confiança)"];
+let FOTOS=[];
+const bonito=n=>String(n||"").split(/\s+/).map(w=>/^[A-ZÇÃÕÉÍ]{3,}$/.test(w)?w[0]+w.slice(1).toLowerCase():w).join(" ");
+function anunPreco(){const t=S.troca,av=avg(t.anuncios),base=av||t.fipe||0,oferta=S.prop.aval+S.prop.bonus;
+  return {base,av,sug:Math.round(base*1.03/100)*100,piso:Math.round(Math.max(t.fipe*0.95||0,oferta||0)/100)*100,oferta};}
+function anunTitulo(){const t=S.troca,a=S.anun;const p=[bonito(t.nome),t.ano||""].filter(Boolean).join(" ");const ex=[];if(a.km)ex.push(`${Math.round(a.km/1000)} mil km`);if((a.cond||[]).includes("Único dono"))ex.push("único dono");
+  return (p+(ex.length?" - "+ex.join(", "):"")).slice(0,70);}
+function anunTexto(){const t=S.troca,a=S.anun,pr=a.preco||anunPreco().sug,L=[];
+  L.push(`${bonito(t.nome)} ${t.ano||""}`.trim());
+  const ficha=[a.km?`${a.km.toLocaleString("pt-BR")} km`:"",a.cambio?`câmbio ${a.cambio.toLowerCase()}`:"",a.cor?`cor ${a.cor.toLowerCase()}`:""].filter(Boolean);
+  if(ficha.length)L.push(ficha.join(", ")+".");
+  if((a.cond||[]).length)L.push("",...a.cond.map(x=>"• "+x));
+  if((a.opc||[]).length)L.push("","Itens: "+a.opc.join(", ").toLowerCase()+".");
+  if(a.extra&&a.extra.trim())L.push("",a.extra.trim());
+  L.push("",`Valor: ${brl(pr)}${t.fipe?` (FIPE ${brl(t.fipe)})`:""}.`);
+  L.push("Aceito vistoria cautelar por sua conta."+((a.cond||[]).includes("IPVA pago")?"":" Documentação em dia."));
+  if(S.cidade)L.push(`Carro em ${S.cidade}/${S.uf}.`);
+  return L.join("\n");}
+function renderAnun(){const t=S.troca,el=$("anunBody");
+  if(!t.nome){el.innerHTML=`<div class="card"><p class="note">Primeiro escolha o seu carro na aba Meu carro.</p><button class="btn" type="button" data-go="troca">Escolher meu carro</button></div>`;return;}
+  const a=S.anun,pr=anunPreco(),chips=(arr,sel,key)=>`<div class="chips">${arr.map(x=>`<button class="chip" type="button" data-${key}="${esc(x)}" aria-pressed="${(sel||[]).includes(x)}">${esc(x)}</button>`).join("")}</div>`;
+  el.innerHTML=`<div class="carcard"><div class="ic">${ICON}</div><div class="info"><div class="n">${esc(bonito(t.nome))}</div><div class="m">Ano ${esc(t.ano||"?")}${t.mes?" · FIPE "+esc(t.mes):""}</div><div class="v num">${t.fipe?brl(t.fipe):"sem FIPE"}</div></div></div>
+   <div class="card"><h3>Como ele está</h3>
+    <div class="row2">${money("an-km","Km rodados",a.km,"65.000")}<div class="field"><span class="lbl">Cor</span><div class="input"><input id="an-cor" class="txt" placeholder="ex.: prata" value="${esc(a.cor||"")}" autocomplete="off"></div></div></div>
+    <span class="lbl">Câmbio</span><div class="chips">${["Manual","Automático"].map(x=>`<button class="chip" type="button" data-cambio="${x}" aria-pressed="${a.cambio===x}">${x}</button>`).join("")}</div>
+    <span class="lbl">O que conta a favor</span>${chips(COND,a.cond,"cond")}
+    <span class="lbl">Itens do carro</span>${chips(OPC,a.opc,"opc")}
+    <div class="field"><span class="lbl">Algo mais? (opcional)</span><textarea id="an-extra" rows="3" placeholder="ex.: troquei a bateria em agosto, pastilhas novas" style="font:inherit;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--raised);color:var(--ink);resize:vertical">${esc(a.extra||"")}</textarea></div></div>
+   <div class="card"><h3>Preço</h3>
+    <div class="cmp"><div class="kpi"><span class="k">${pr.av?"Média dos anúncios":"FIPE"}</span><span class="v num">${brl(pr.base)}</span></div><div class="kpi ok"><span class="k">Sugestão de anúncio</span><span class="v num">${brl(pr.sug)}</span></div></div>
+    <p class="note">A sugestão deixa ~3% para negociar. Não aceite menos que <b>${brl(pr.piso)}</b>${pr.oferta?` (a loja ofereceu ${brl(pr.oferta)})`:""}.${pr.av?"":" Anote preços de anúncios na aba Meu carro para uma sugestão mais precisa."}</p>
+    ${money("an-preco","Preço do anúncio",a.preco,fmtIn(pr.sug))}</div>
+   <div class="card"><h3>Fotos</h3>
+    <p class="note">Foto boa vende. De dia, carro lavado, fundo limpo, celular na horizontal. Sugestão de ordem:</p>
+    <ol class="note" style="margin:0;padding-left:20px">${FOTOGUIA.map(x=>`<li>${x}</li>`).join("")}</ol>
+    <label class="btn sec" style="display:flex;align-items:center;justify-content:center">Escolher fotos<input id="an-fotos" type="file" accept="image/*" multiple hidden></label>
+    <div id="an-thumbs" class="thumbs"></div>
+    <p class="note">As fotos ficam só neste celular e não são salvas: se fechar o app, escolha de novo.</p></div>
+   <div class="card"><h3>Seu anúncio</h3>
+    <div class="field"><span class="lbl">Título</span><div class="input"><input id="an-tit" class="txt" readonly value="${esc(anunTitulo())}"></div></div>
+    <div class="field"><span class="lbl" style="display:flex;justify-content:space-between">Descrição (pode editar)<button class="link" type="button" id="an-reset" style="padding:0">Refazer texto</button></span><textarea id="an-desc" rows="12" style="font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--raised);color:var(--ink);resize:vertical">${esc(anunTexto())}</textarea></div>
+    <div class="btns"><button class="btn sec" type="button" id="an-ctit">Copiar título</button><button class="btn sec" type="button" id="an-cdesc">Copiar descrição</button>
+     <button class="btn wide" type="button" id="an-share">Compartilhar com fotos</button><button class="btn ghost wide" type="button" id="an-capa">Gerar capa com preço</button></div></div>
+   <div class="card"><h3>Onde publicar</h3>
+    <p class="note">Abra o site ou app, toque em <b>Anunciar</b>, cole o título e a descrição e envie as fotos na ordem acima.</p>
+    <div class="links"><a href="https://www.olx.com.br/" target="_blank" rel="noopener">OLX</a><a href="https://www.webmotors.com.br/" target="_blank" rel="noopener">Webmotors</a><a href="https://www.facebook.com/marketplace/create/vehicle" target="_blank" rel="noopener">Marketplace</a><a href="https://www.icarros.com.br/" target="_blank" rel="noopener">iCarros</a><a href="https://www.mobiauto.com.br/" target="_blank" rel="noopener">Mobiauto</a><a href="https://wa.me/?text=${encodeURIComponent(anunTitulo()+"\n\n"+anunTexto())}" target="_blank" rel="noopener">WhatsApp</a></div>
+    <p class="note">Dicas: atenda pelo chat da plataforma, mostre o carro em lugar movimentado, receba por TED/PIX confirmado no seu banco antes de entregar o documento e faça o comunicado de venda no Detran.</p></div>`;
+  renderThumbs();}
+function anunRefresh(){const ti=$("an-tit"),de=$("an-desc");if(ti)ti.value=anunTitulo();if(de&&!S.anun.descEdit)de.value=anunTexto();}
+function renderThumbs(){const el=$("an-thumbs");if(!el)return;el.innerHTML=FOTOS.map((f,i)=>`<div class="th"><img src="${f.url}" alt="Foto ${i+1}"><span>${i+1}</span><div><button type="button" data-fl="${i}" aria-label="Mover para a esquerda">‹</button><button type="button" data-fx="${i}" aria-label="Remover">×</button><button type="button" data-fr="${i}" aria-label="Mover para a direita">›</button></div></div>`).join("");}
+async function encolhe(file){const img=await new Promise((ok,er)=>{const i=new Image();i.onload=()=>ok(i);i.onerror=er;i.src=URL.createObjectURL(file);});
+  const m=1600,k=Math.min(1,m/Math.max(img.width,img.height)),c=document.createElement("canvas");c.width=Math.round(img.width*k);c.height=Math.round(img.height*k);c.getContext("2d").drawImage(img,0,0,c.width,c.height);URL.revokeObjectURL(img.src);
+  const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.85));return {blob,url:URL.createObjectURL(blob),img:c};}
+const nomeArq=i=>`${(bonito(S.troca.nome)||"carro").replace(/[^\w]+/g,"-").toLowerCase()}-${String(i+1).padStart(2,"0")}.jpg`;
+async function capa(){if(!FOTOS.length){toast("Escolha as fotos primeiro");return null;}const W=1080,H=1350,c=document.createElement("canvas");c.width=W;c.height=H;const g=c.getContext("2d"),im=FOTOS[0].img;
+  const k=Math.max(W/im.width,H/im.height),w=im.width*k,h=im.height*k;g.drawImage(im,(W-w)/2,(H-h)/2,w,h);
+  const gr=g.createLinearGradient(0,H*0.55,0,H);gr.addColorStop(0,"rgba(0,0,0,0)");gr.addColorStop(1,"rgba(0,0,0,.85)");g.fillStyle=gr;g.fillRect(0,0,W,H);
+  const t=S.troca,a=S.anun,pr=a.preco||anunPreco().sug;g.fillStyle="#fff";g.font="700 64px 'Barlow Semi Condensed',Arial Narrow,sans-serif";g.fillText(`${bonito(t.nome)}`.slice(0,30),56,H-250);
+  g.font="600 44px 'Source Sans 3',sans-serif";g.fillStyle="#e9eef3";g.fillText([t.ano,a.km?`${Math.round(a.km/1000)} mil km`:"",(a.cond||[]).includes("Único dono")?"único dono":""].filter(Boolean).join(" · "),56,H-180);
+  g.fillStyle="#ffd166";g.font="700 96px 'Barlow Semi Condensed',Arial Narrow,sans-serif";g.fillText(brl(pr),56,H-70);
+  const blob=await new Promise(r=>c.toBlob(r,"image/jpeg",0.9));return new File([blob],"capa-"+nomeArq(0),{type:"image/jpeg"});}
+function baixar(file){const u=URL.createObjectURL(file),l=document.createElement("a");l.href=u;l.download=file.name;document.body.appendChild(l);l.click();l.remove();setTimeout(()=>URL.revokeObjectURL(u),4000);}
+function copiar(t,msg){const ok=()=>toast(msg);(navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(t):Promise.reject()).then(ok).catch(()=>{const x=document.createElement("textarea");x.value=t;x.style.position="fixed";x.style.opacity="0";document.body.appendChild(x);x.select();try{document.execCommand("copy");ok();}catch(e){toast("Não deu para copiar");}x.remove();});}
+$("anunBody").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;const a=S.anun,d=b.dataset;
+  const tog=(k,v)=>{a[k]=(a[k]||[]).includes(v)?a[k].filter(x=>x!==v):[...(a[k]||[]),v];b.setAttribute("aria-pressed",String(a[k].includes(v)));};
+  if(d.cond)tog("cond",d.cond);else if(d.opc)tog("opc",d.opc);else if(d.cambio){a.cambio=a.cambio===d.cambio?"":d.cambio;b.parentNode.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.cambio===a.cambio)));}
+  else if(d.fl!=null||d.fr!=null||d.fx!=null){const i=+(d.fl??d.fr??d.fx);if(d.fx!=null){URL.revokeObjectURL(FOTOS[i].url);FOTOS.splice(i,1);}else{const j=d.fl!=null?i-1:i+1;if(j>=0&&j<FOTOS.length)[FOTOS[i],FOTOS[j]]=[FOTOS[j],FOTOS[i]];}renderThumbs();return;}
+  else if(b.id==="an-reset"){a.descEdit=false;persist();$("an-desc").value=anunTexto();toast("Texto refeito");return;}
+  else if(b.id==="an-ctit"){copiar($("an-tit").value,"Título copiado");return;}
+  else if(b.id==="an-cdesc"){copiar($("an-desc").value,"Descrição copiada");return;}
+  else if(b.id==="an-capa"){const f=await capa();if(!f)return;if(navigator.canShare&&navigator.canShare({files:[f]})){try{await navigator.share({files:[f]});}catch(x){}}else baixar(f);return;}
+  else if(b.id==="an-share"){const files=FOTOS.map((f,i)=>new File([f.blob],nomeArq(i),{type:"image/jpeg"})),text=$("an-tit").value+"\n\n"+$("an-desc").value;
+    if(files.length&&navigator.canShare&&navigator.canShare({files})){try{await navigator.share({files,text,title:$("an-tit").value});}catch(x){}}
+    else if(navigator.share&&!files.length){try{await navigator.share({text});}catch(x){}}
+    else{copiar(text,"Texto copiado. Baixando as fotos…");files.forEach((f,i)=>setTimeout(()=>baixar(f),i*400));}return;}
+  else return;persist();anunRefresh();});
+$("anunBody").addEventListener("input",e=>{const a=S.anun,id=e.target.id;if(id==="an-km")a.km=parse(e.target.value);else if(id==="an-cor")a.cor=e.target.value;else if(id==="an-extra")a.extra=e.target.value;else if(id==="an-preco")a.preco=parse(e.target.value);else if(id==="an-desc"){a.descEdit=true;persist();return;}else return;persist();anunRefresh();});
+$("anunBody").addEventListener("change",async e=>{if(e.target.id!=="an-fotos")return;const fs=[...e.target.files].slice(0,20-FOTOS.length);toast(`Preparando ${fs.length} foto${fs.length>1?"s":""}…`);
+  for(const f of fs){try{FOTOS.push(await encolhe(f));}catch(x){}}e.target.value="";renderThumbs();});
 /* ---------- comparar modelos ---------- */
 function ccVals(){const c=S.cc;return {entrada:c.entrada||S.prop.entrada||S.my.cash||0,troca:S.temTroca?(c.troca||(S.prop.aval+S.prop.bonus)||Math.round((S.troca.fipe||0)*0.9)):0,n:c.n||S.prop.n||36,taxa:c.taxa||S.my.mkt||D.taxas.mensal_pct||1.97};}
 function usoDe(car){const n=norm(car.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k)))),src=hit||base,f=car.fipe||0;
@@ -898,7 +1002,7 @@ const pkTroca=picker("pk-troca","troca",{semZero:true,onPick:()=>{renderMarket("
   if(S.cep)$("cep").value=S.cep.slice(0,5)+"-"+S.cep.slice(5);
   $("useFields").querySelector("#m-mkt").placeholder=String(D.taxas.mensal_pct).replace(".",",");
   $("fontes").innerHTML=[["FIPE","ao vivo (API pública Parallelum)"],["Taxa média",`${String(D.taxas.mensal_pct).replace(".",",")}% a.m. · Banco Central · ${esc(D.taxas.ref)}`],["Combustível",`ANP · semana até ${esc(D.comb.ref)}`],["IPVA",`alíquota geral por estado · ${esc(D.ipva.ref)}`],["Consumo",`Inmetro e tabelas das marcas`],["CEP","ViaCEP"]].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join("");
-  renderN();buildUso();buildAtual();syncTem();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");renderHist();showView();go(TABS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
+  renderN();buildUso();buildAtual();syncTem();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");renderHist();showView();go(TELAS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
 </script>
 </body>
 </html>

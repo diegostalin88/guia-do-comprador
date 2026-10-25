@@ -1,6 +1,6 @@
 // Guia do Comprador: funciona offline com a última versão baixada.
 // App e dados: tenta a rede primeiro (para pegar atualizações) e usa o cache se estiver sem internet.
-const CACHE = "guia-v6";
+const CACHE = "guia-v7";
 const SHELL = ["./", "index.html", "manifest.webmanifest", "icons/icon-192.png", "icons/icon-512.png",
   "data/ipva.json", "data/taxas.json", "data/combustivel.json", "data/modelos.json"];
 self.addEventListener("install", e => { e.waitUntil(caches.open(CACHE).then(c => c.addAll(SHELL)).then(() => self.skipWaiting())); });
