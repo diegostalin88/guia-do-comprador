@@ -182,6 +182,15 @@ details.more .body{padding:0 16px 16px;display:flex;flex-direction:column;gap:12
 .mc .row3 span{display:block;font-size:.75rem;color:var(--muted);font-weight:700}
 .mc .row3 b{font-family:var(--mono);font-size:.95rem}
 .tagok{color:var(--ok);font-weight:700}.tagbad{color:var(--bad);font-weight:700}
+.ck{display:flex;flex-direction:column}
+.ck label{display:flex;gap:12px;align-items:flex-start;padding:12px 0;border-top:1px solid var(--line);cursor:pointer}
+.ck label:first-child{border-top:0}
+.ck input{appearance:none;-webkit-appearance:none;flex:none;width:26px;height:26px;border-radius:8px;border:2px solid var(--line);background:var(--raised);margin:0;display:grid;place-items:center;cursor:pointer}
+.ck input:checked{background:var(--ok);border-color:var(--ok)}
+.ck input:checked::after{content:"";width:7px;height:13px;border:solid #fff;border-width:0 3px 3px 0;transform:translate(0,-2px) rotate(45deg)}
+.ck span b{display:block;font-weight:700}.ck span small{display:block;color:var(--muted);font-size:.88rem;line-height:1.35}
+.ck .opt{font-weight:400;color:var(--muted);font-size:.8rem}
+.placa{font-family:var(--mono);font-size:22px;letter-spacing:.12em;text-transform:uppercase}
 .progress{height:6px;border-radius:3px;background:var(--raised);overflow:hidden}.progress i{display:block;height:100%;background:var(--accent);transition:width .2s}
 .saved .sv{display:flex;flex-direction:column;gap:6px;padding:14px;border-radius:16px;background:var(--surface);box-shadow:0 1px 0 var(--line)}
 .saved{display:flex;flex-direction:column;gap:10px}
@@ -241,6 +250,7 @@ body.sheet-open .sheet{transform:none}
     </div>
     <div class="card" id="pk-novo"></div>
     <div class="card" id="mk-car" hidden></div>
+    <div class="card" id="hist" hidden></div>
     <div class="card" id="segNovo" hidden>
       <h3>Seguro deste carro</h3>
       <div class="field"><div class="input"><span>R$</span><input id="u-seguro" inputmode="decimal" placeholder="0" autocomplete="off"><span>por ano</span></div></div>
@@ -341,15 +351,7 @@ body.sheet-open .sheet{transform:none}
       <div class="list num" id="monthly"></div>
     </div>
     <details class="more"><summary>Detalhes do financiamento</summary><div class="body"><div class="list num" id="money"></div></div></details>
-    <div class="card" id="semiCheck" hidden>
-      <h3>Antes de fechar um seminovo</h3>
-      <ul class="alerts">
-        <li class="warn">Peça o laudo cautelar (batida, sinistro, leilão, chassi).</li>
-        <li class="warn">Confira revisões carimbadas e garantia de fábrica restante.</li>
-        <li class="warn">Consulte a placa: multas, IPVA atrasado, gravame e recall.</li>
-        <li class="warn">Confirme quem paga transferência e despachante.</li>
-      </ul>
-    </div>
+    <div class="card" id="semiCheck" hidden></div>
     <div class="card">
       <div class="field"><span class="lbl">Loja / vendedor</span><div class="input"><input id="loja" class="txt" placeholder="ex.: Nissan Piedade, Leandro" autocomplete="off"></div></div>
       <div class="btns">
@@ -476,9 +478,9 @@ const TABS=["carro","troca","proposta","resultado","comparar"];
 function go(t){S.tab=t;persist();TABS.forEach(x=>{$("sc-"+x).hidden=x!==t;document.querySelector(`[data-tab="${x}"]`).setAttribute("aria-current",x===t?"page":"false");});
   $("sum").style.display=(t==="resultado"||t==="comparar")?"none":"flex";
   document.body.style.paddingBottom=(t==="resultado"||t==="comparar")?"calc(var(--nav) + env(safe-area-inset-bottom,0px) + 16px)":"";
-  window.scrollTo({top:0});if(t==="resultado")update();if(t==="comparar")showView();if(t==="carro")renderMarket("car");if(t==="troca")renderMarket("troca");}
+  window.scrollTo({top:0});if(t==="resultado")update();if(t==="comparar")showView();if(t==="carro"){renderMarket("car");renderHist();}if(t==="troca")renderMarket("troca");}
 document.querySelectorAll("[data-tab]").forEach(b=>b.addEventListener("click",()=>go(b.dataset.tab)));
-document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(g)go(g.dataset.go);});
+document.addEventListener("click",e=>{const g=e.target.closest("[data-go]");if(!g)return;go(g.dataset.go);if(g.dataset.scroll)setTimeout(()=>{const el=$(g.dataset.scroll);if(el)window.scrollTo({top:el.getBoundingClientRect().top+scrollY-80});},50);});
 
 /* chips de escolha única: ao escolher, esconde as outras opções; tocar de novo reabre */
 function chipPick(box,c){if(box.classList.contains("collapsed")&&c.getAttribute("aria-pressed")==="true"){box.classList.remove("collapsed");return false;}
@@ -663,6 +665,7 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
   if(R.fees>0)A.push(["warn",`Taxas listadas somam ${brl(R.fees)} e entraram no financiamento. Pergunte se dá para tirar.`]);
   if(R.atual&&R.mes){const dd=R.mes-R.atual;A.push(["info",`O carro novo custa ${brl(Math.abs(dd))} por mês ${dd>0?"a mais":"a menos"} que o seu carro hoje (${brl(R.atual)} → ${brl(R.mes)}).`]);}
   if(!S.temCarro&&M.orcCarro&&R.mes){const f=M.orcCarro-R.mes;A.push([f<0?"bad":f<M.orcCarro*0.1?"warn":"ok",f<0?`Custo total ${brl(R.mes)} por mês passa ${brl(-f)} do seu orçamento de ${brl(M.orcCarro)}.`:`Custo total ${brl(R.mes)} por mês cabe no seu orçamento de ${brl(M.orcCarro)} (sobram ${brl(f)}).`]);}
+  if(!c.zero&&c.nome){const ck=c.check||{};if(!ck.laudo)A.push(["warn","Seminovo sem laudo cautelar marcado. Faça a vistoria antes de assinar."]);if(!ck.detran)A.push(["warn","Falta a consulta grátis da placa no Detran (restrições, gravame, débitos)."]);}
   if(!c.zero&&S.uso.km&&c.ano){const ka=S.uso.km/Math.max(0.5,new Date().getFullYear()-c.ano+1);A.push([ka>18000?"warn":"ok",`Km do carro ~${Math.round(ka).toLocaleString("pt-BR")}/ano${ka>18000?", acima da média: peça desconto.":", dentro da média."}`]);}
   if(M.lim&&R.has)A.push([R.parc>M.lim+0.5?"bad":"ok",`Parcela ${brl(R.parc)} ${R.parc>M.lim+0.5?"passa do":"cabe no"} seu limite de ${brl(M.lim)}.`]);
   if(M.cash&&P.entrada>M.cash+0.5)A.push(["bad",`Entrada ${brl(P.entrada)} passa do seu aporte de ${brl(M.cash)}.`]);
@@ -695,7 +698,7 @@ function update(){const R=compute(),P=S.prop,M=S.my,c=S.car,mk=mkt(),[gc,gl,gt]=
   $("monthly").innerHTML=rows.map(([l,v])=>`<div><b>${l}</b><span>${brl(v)}</span></div>`).join("");
   $("money").innerHTML=[["Preço",brl(P.preco)],["Troca + bônus",brl(R.aval+R.bonus)],["Desconto",brl(P.desc)],["Entrada",brl(P.entrada)],["Saldo do carro",brl(R.baseFin)],["Taxas listadas",brl(R.fees)],
     ["Parcelas",P.n?`${P.n}x ${brl(R.parc)}`:"—"],["Soma das parcelas",brl(R.parcelas)],["Juros + encargos",brl(Math.max(0,R.parcelas-R.baseFin))],["Do seu bolso",brl(P.entrada+R.parcelas)]].map(([l,v])=>`<div><b>${l}</b><span>${v}</span></div>`).join("");
-  $("semiCheck").hidden=c.zero||!c.nome;}
+  renderSemi();}
 
 function renderImpacto(R){const el=$("impacto"),A=R.A,P=S.prop;
   if(!S.temCarro){const o=S.my.orcCarro,rows=[["Parcela",R.parc],["Seguro",R.seg],["Combustível",R.comb],["IPVA",R.ipva],["Manutenção",R.manut]];
@@ -723,7 +726,7 @@ function renderImpacto(R){const el=$("impacto"),A=R.A,P=S.prop;
 
 /* ---------- salvar / copiar ---------- */
 function summary(R){const P=S.prop,c=S.car,ti=trocaInfo();return `${c.nome||"Carro"} (${c.zero?"0 km":"ano "+c.ano})${S.loja?" — "+S.loja:""}
-Preço ${brl(P.preco)} | FIPE ${brl(c.fipe)}${ti?`\nTroca: ${S.troca.nome} oferta ${brl(P.aval+P.bonus)} = ${pct(ti.q,0)} da FIPE (${brl(ti.dif)} abaixo)`:""}
+${c.placa?"Placa "+c.placa+"\n":""}${!c.zero&&c.nome?`Checklist: ${CHECK.filter(([k])=>(c.check||{})[k]).length}/${CHECK.length}${(c.check||{}).laudo?" (laudo ok)":" (sem laudo ainda)"}\n`:""}Preço ${brl(P.preco)} | FIPE ${brl(c.fipe)}${ti?`\nTroca: ${S.troca.nome} oferta ${brl(P.aval+P.bonus)} = ${pct(ti.q,0)} da FIPE (${brl(ti.dif)} abaixo)`:""}
 Entrada ${brl(P.entrada)} | ${P.n}x de ${brl(R.parc)}
 Taxa real ${pct(R.r)} a.m. (média BC ${pct(mkt())}) | ${S.prop.taxaSet?"escondido "+brl(R.oculto):"juros "+brl(Math.max(0,R.parcelas-R.baseFin))}
 Preço real ${brl(R.efetivo)} | custo/mês ${brl(R.mes)}${!S.temCarro&&S.my.orcCarro?`\nOrçamento ${brl(S.my.orcCarro)}/mês → ${R.mes>S.my.orcCarro?"passa "+brl(R.mes-S.my.orcCarro):"sobram "+brl(S.my.orcCarro-R.mes)}`:""}${R.atual?`\nHoje gasto ${brl(R.atual)}/mês → ${R.mes>=R.atual?"+":"−"}${brl(Math.abs(R.mes-R.atual)).replace("−","")} por mês`:""}
@@ -768,6 +771,39 @@ function renderMarket(key){const el=$("mk-"+key),c=S[key];if(!c.nome){el.hidden=
   el.addEventListener("click",e=>{if(e.target.dataset.add)add();const r=e.target.dataset.rm;if(r!=null){S[key].anuncios.splice(+r,1);persist();renderMarket(key);update();}});
   el.addEventListener("keydown",e=>{if(e.key==="Enter"&&e.target.id==="mk-"+key+"-in"){e.preventDefault();add();}});});
 
+/* ---------- seminovo: placa, consultas grátis e checklist de compra ---------- */
+const CHECK=[
+ ["detran","Consulta grátis no Detran","Sem restrição, roubo/furto, gravame (financiamento) e sem débitos. Peça o Renavam ao vendedor."],
+ ["seguro","Cotação do seguro pela placa","Peça a uma corretora. Recusa ou preço muito alto costuma indicar leilão ou sinistro grave."],
+ ["recall","Recall verificado","Veja se há recall do modelo e se já foi feito (a concessionária confirma pelo chassi)."],
+ ["docs","Documento e chaves","CRLV no nome de quem está vendendo, chassi do documento igual ao do carro e chave reserva."],
+ ["revis","Revisões comprovadas","Manual carimbado ou notas fiscais. Confira se o km bate com as revisões."],
+ ["test","Test drive","Câmbio sem tranco, sem barulho na suspensão, ar gelando, nenhuma luz acesa no painel."],
+ ["paga","Consulta paga de histórico","Leilão e indício de sinistro. Custa de R$ 20 a R$ 100 em sites de consulta veicular.",true],
+ ["laudo","Laudo cautelar aprovado","Vistoria presencial (R$ 150 a R$ 400). É o único que acha batida escondida. Não feche sem ele."]];
+const placaOk=p=>/^[A-Z]{3}[0-9][A-Z0-9][0-9]{2}$/.test(p);
+function renderHist(){const el=$("hist"),c=S.car;if(c.zero||!c.nome){el.hidden=true;return;}el.hidden=false;
+  const pl=c.placa||"",ck=c.check||{},feitos=CHECK.filter(([k])=>ck[k]).length,e=encodeURIComponent,uf=S.uf||"",q=busca(c);
+  const L=[[`Detran${uf?"-"+uf:""}`,`https://www.google.com/search?q=${e(`Detran ${uf} consulta veículo placa renavam`)}`],
+    ["Recall",`https://www.google.com/search?q=${e(`recall ${q} ${c.ano||""}`)}`],
+    ["Laudo cautelar"+(S.cidade?" perto":""),`https://www.google.com/maps/search/${e("vistoria cautelar "+(S.cidade||""))}`],
+    ["Consulta paga",`https://www.google.com/search?q=${e("consulta veicular completa placa leilão sinistro")}`]];
+  el.innerHTML=`<h3>Antes de comprar este seminovo</h3>
+   <div class="field"><span class="lbl">Placa (opcional)</span><div class="addrow"><div class="input"><input id="h-placa" class="placa" maxlength="8" placeholder="ABC1D23" autocomplete="off" autocapitalize="characters" value="${esc(pl)}"></div><button class="btn sec" type="button" id="h-copy">Copiar</button></div>
+   <p class="note" id="h-pnote">${pl?(placaOk(pl)?"Placa válida. Copie e cole nos sites de consulta.":"Confira a placa: formato ABC1234 ou ABC1D23."):"Os sites oficiais pedem placa e Renavam e têm verificação, então não dá para preencher sozinho."}</p></div>
+   <div class="links">${L.map(([n,u])=>`<a href="${esc(u)}" target="_blank" rel="noopener">${n}</a>`).join("")}</div>
+   <div class="progress"><i style="width:${feitos/CHECK.length*100}%;background:var(--${ck.laudo?"ok":"accent"})"></i></div>
+   <p class="note"><b>${feitos} de ${CHECK.length}</b> verificações feitas</p>
+   <div class="ck">${CHECK.map(([k,t,d,opt])=>`<label><input type="checkbox" data-ck="${k}" ${ck[k]?"checked":""}><span><b>${t}${opt?' <span class="opt">(opcional)</span>':""}</b><small>${d}</small></span></label>`).join("")}</div>`;}
+$("hist").addEventListener("input",e=>{if(e.target.id!=="h-placa")return;const v=e.target.value.toUpperCase().replace(/[^A-Z0-9]/g,"").slice(0,7);e.target.value=v;S.car.placa=v;persist();
+  $("h-pnote").textContent=!v?"":placaOk(v)?"Placa válida. Copie e cole nos sites de consulta.":"Confira a placa: formato ABC1234 ou ABC1D23.";});
+$("hist").addEventListener("change",e=>{const k=e.target.dataset.ck;if(!k)return;S.car.check={...(S.car.check||{}),[k]:e.target.checked};persist();renderHist();update();});
+$("hist").addEventListener("click",e=>{if(e.target.id!=="h-copy")return;const v=S.car.placa||"";if(!v){toast("Digite a placa");return;}
+  (navigator.clipboard&&navigator.clipboard.writeText?navigator.clipboard.writeText(v):Promise.reject()).then(()=>toast("Placa copiada")).catch(()=>{const i=$("h-placa");i.select();try{document.execCommand("copy");toast("Placa copiada");}catch(x){}});});
+function renderSemi(){const el=$("semiCheck"),c=S.car;if(c.zero||!c.nome){el.hidden=true;return;}el.hidden=false;const ck=c.check||{},falta=CHECK.filter(([k,,,opt])=>!ck[k]&&!opt);
+  el.innerHTML=`<h3>Checklist do seminovo</h3><div class="progress"><i style="width:${(1-falta.length/CHECK.filter(x=>!x[3]).length)*100}%;background:var(--${falta.length?"warn":"ok"})"></i></div>
+   ${falta.length?`<ul class="alerts">${falta.map(([k,t])=>`<li class="${k==="laudo"||k==="detran"?"bad":"warn"}">Falta: ${t}</li>`).join("")}</ul>`:`<ul class="alerts"><li class="ok">Todas as verificações essenciais feitas.</li></ul>`}
+   <button class="btn sec" type="button" data-go="carro" data-scroll="hist">Abrir checklist</button>`;}
 /* ---------- comparar modelos ---------- */
 function ccVals(){const c=S.cc;return {entrada:c.entrada||S.prop.entrada||S.my.cash||0,troca:S.temTroca?(c.troca||(S.prop.aval+S.prop.bonus)||Math.round((S.troca.fipe||0)*0.9)):0,n:c.n||S.prop.n||36,taxa:c.taxa||S.my.mkt||D.taxas.mensal_pct||1.97};}
 function usoDe(car){const n=norm(car.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k)))),src=hit||base,f=car.fipe||0;
@@ -856,13 +892,13 @@ window.addEventListener("appinstalled",()=>{$("install").hidden=true;});
 if("serviceWorker" in navigator&&location.protocol==="https:")window.addEventListener("load",()=>navigator.serviceWorker.register("sw.js").catch(()=>{}));
 
 /* ---------- inicialização ---------- */
-const pkNovo=picker("pk-novo","car",{onPick:()=>{renderMarket("car");if(S.car.fipe)applyModelo();else update();}});
+const pkNovo=picker("pk-novo","car",{onPick:()=>{renderMarket("car");renderHist();if(S.car.fipe)applyModelo();else update();}});
 const pkTroca=picker("pk-troca","troca",{semZero:true,onPick:()=>{renderMarket("troca");if(S.troca.fipe)applyAtual();else{buildAtual();update();}}});
 (async()=>{await Promise.all([["ipva","data/ipva.json"],["taxas","data/taxas.json"],["comb","data/combustivel.json"],["modelos","data/modelos.json"]].map(async([k,u])=>{try{D[k]=await getJSON(u,8000);}catch(e){}}));
   if(S.cep)$("cep").value=S.cep.slice(0,5)+"-"+S.cep.slice(5);
   $("useFields").querySelector("#m-mkt").placeholder=String(D.taxas.mensal_pct).replace(".",",");
   $("fontes").innerHTML=[["FIPE","ao vivo (API pública Parallelum)"],["Taxa média",`${String(D.taxas.mensal_pct).replace(".",",")}% a.m. · Banco Central · ${esc(D.taxas.ref)}`],["Combustível",`ANP · semana até ${esc(D.comb.ref)}`],["IPVA",`alíquota geral por estado · ${esc(D.ipva.ref)}`],["Consumo",`Inmetro e tabelas das marcas`],["CEP","ViaCEP"]].map(([a,b])=>`<div><b>${a}</b><span>${b}</span></div>`).join("");
-  renderN();buildUso();buildAtual();syncTem();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");showView();go(TABS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
+  renderN();buildUso();buildAtual();syncTem();applyLocal();renderSaved();renderMarket("car");renderMarket("troca");renderHist();showView();go(TABS.includes(S.tab)?S.tab:"carro");loadMarcas().catch(()=>{});})();
 </script>
 </body>
 </html>
