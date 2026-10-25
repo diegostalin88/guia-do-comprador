@@ -468,7 +468,7 @@ const DEF={tab:"carro",uf:"",cidade:"",cep:"",temTroca:true,temCarro:true,
   fees:{tc:0,reg:0,prest:0,revp:0,gar:0,acc:0,transf:0,laudo:0,outros:0},
   my:{lim:0,cash:0,kmMes:1300,city:60,mkt:0,orcCarro:0},loja:"",
   atual:{cid:0,est:0,seguro:0,rev60:0,pneus:0,reserva:0,parc:0,outros:0,fipe:0},atualNome:"",
-  anun:{km:0,cor:"",cambio:"",cond:[],opc:[],extra:"",preco:0,descEdit:false},
+  anun:{km:0,cor:"",cambio:"",cond:[],opc:[],extra:"",preco:0,descEdit:false,desc:""},anSalvos:[],
   cmp:[],cc:{entrada:0,troca:0,n:0,taxa:0},cmpPick:{nome:"",fipe:0,ano:0,zero:true,mes:"",codigo:""},orc:{lim:0,filtro:"",view:"modelos"}};
 const KEY="guiaComprador.v2";
 let S=JSON.parse(JSON.stringify(DEF)),SAVED=[];
@@ -831,6 +831,16 @@ const OPC=["Ar-condicionado","Direção elétrica","Vidros elétricos","Travas e
 const COND=["Único dono","Revisões em concessionária","Manual e chave reserva","IPVA pago","Sem multas","Nunca batido","Pneus novos","Na garantia de fábrica"];
 const FOTOGUIA=["Frente em diagonal (foto de capa)","Traseira em diagonal","Lateral inteira","Painel ligado mostrando o km","Bancos da frente","Banco de trás","Porta-malas aberto","Pneus e rodas","Motor","Detalhe de qualquer marca ou risco (passa confiança)"];
 let FOTOS=[];
+/* fotos guardadas no próprio celular (IndexedDB); nada vai para servidor */
+let _db=null;const idb=()=>_db||(_db=new Promise((ok,er)=>{try{const r=indexedDB.open("guiaComprador",1);r.onupgradeneeded=()=>r.result.createObjectStore("fotos");r.onsuccess=()=>ok(r.result);r.onerror=()=>er(r.error);}catch(e){er(e);}}));
+const idbOp=(mode,fn)=>idb().then(db=>new Promise((ok,er)=>{const tx=db.transaction("fotos",mode),st=tx.objectStore("fotos"),q=fn(st);tx.oncomplete=()=>ok(q&&q.result);tx.onerror=()=>er(tx.error);})).catch(()=>null);
+const idbPut=(k,v)=>idbOp("readwrite",st=>st.put(v,k)),idbGet=k=>idbOp("readonly",st=>st.get(k)),idbDel=k=>idbOp("readwrite",st=>st.delete(k));
+async function fotosDe(blobs){const out=[];for(const blob of blobs||[]){const url=URL.createObjectURL(blob);const img=await new Promise(ok=>{const i=new Image();i.onload=()=>ok(i);i.onerror=()=>ok(null);i.src=url;});if(img)out.push({blob,url,img});}return out;}
+function confirmar(b){if(b.dataset.ok){return true;}b.dataset.ok="1";const t=b.textContent;b.textContent="Toque de novo para confirmar";setTimeout(()=>{if(b.isConnected){delete b.dataset.ok;b.textContent=t;}},3000);return false;}
+function salvosHTML(){const L=S.anSalvos||[];return `<div class="card"><div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><h3>Anúncios salvos${L.length?" ("+L.length+")":""}</h3><button class="link" type="button" data-novo style="white-space:nowrap">Começar do zero</button></div>
+  ${L.length?`<div class="saved">`+L.map(r=>`<div class="sv"><div class="t"><b>${esc(r.titulo)}</b></div><div class="m">${brl(r.preco)} · ${r.nFotos} foto${r.nFotos!==1?"s":""} · salvo em ${esc(r.data)}</div>
+   <div class="btns"><button class="btn sec" type="button" data-abrir="${r.id}">Abrir</button><button class="btn ghost" type="button" data-apagar="${r.id}">Apagar</button></div></div>`).join("")+`</div>`:`<p class="note">O que você preenche aqui já fica guardado. Toque em "Salvar anúncio" lá embaixo para guardar uma versão com as fotos e abrir quando quiser.</p>`}</div>`;}
+idbGet("draft").then(async b=>{if(b&&b.length&&!FOTOS.length){FOTOS=await fotosDe(b);renderThumbs();}});
 const bonito=n=>String(n||"").split(/\s+/).map(w=>/^[A-ZÇÃÕÉÍ]{3,}$/.test(w)?w[0]+w.slice(1).toLowerCase():w).join(" ");
 function anunPreco(){const t=S.troca,av=avg(t.anuncios),base=av||t.fipe||0,oferta=S.prop.aval+S.prop.bonus;
   return {base,av,sug:Math.round(base*1.03/100)*100,piso:Math.round(Math.max(t.fipe*0.95||0,oferta||0)/100)*100,oferta};}
@@ -850,7 +860,7 @@ function anunTexto(){const t=S.troca,a=S.anun,pr=a.preco||anunPreco().sug,L=[];
 function renderAnun(){const t=S.troca,el=$("anunBody");
   if(!t.nome){el.innerHTML=`<div class="card"><p class="note">Primeiro escolha o seu carro na aba Meu carro.</p><button class="btn" type="button" data-go="troca">Escolher meu carro</button></div>`;return;}
   const a=S.anun,pr=anunPreco(),chips=(arr,sel,key)=>`<div class="chips">${arr.map(x=>`<button class="chip" type="button" data-${key}="${esc(x)}" aria-pressed="${(sel||[]).includes(x)}">${esc(x)}</button>`).join("")}</div>`;
-  el.innerHTML=`<div class="carcard"><div class="ic">${ICON}</div><div class="info"><div class="n">${esc(bonito(t.nome))}</div><div class="m">Ano ${esc(t.ano||"?")}${t.mes?" · FIPE "+esc(t.mes):""}</div><div class="v num">${t.fipe?brl(t.fipe):"sem FIPE"}</div></div></div>
+  el.innerHTML=`${salvosHTML()}<div class="carcard"><div class="ic">${ICON}</div><div class="info"><div class="n">${esc(bonito(t.nome))}</div><div class="m">Ano ${esc(t.ano||"?")}${t.mes?" · FIPE "+esc(t.mes):""}</div><div class="v num">${t.fipe?brl(t.fipe):"sem FIPE"}</div></div></div>
    <div class="card"><h3>Como ele está</h3>
     <div class="row2">${money("an-km","Km rodados",a.km,"65.000")}<div class="field"><span class="lbl">Cor</span><div class="input"><input id="an-cor" class="txt" placeholder="ex.: prata" value="${esc(a.cor||"")}" autocomplete="off"></div></div></div>
     <span class="lbl">Câmbio</span><div class="chips">${["Manual","Automático"].map(x=>`<button class="chip" type="button" data-cambio="${x}" aria-pressed="${a.cambio===x}">${x}</button>`).join("")}</div>
@@ -866,10 +876,11 @@ function renderAnun(){const t=S.troca,el=$("anunBody");
     <ol class="note" style="margin:0;padding-left:20px">${FOTOGUIA.map(x=>`<li>${x}</li>`).join("")}</ol>
     <label class="btn sec" style="display:flex;align-items:center;justify-content:center">Escolher fotos<input id="an-fotos" type="file" accept="image/*" multiple hidden></label>
     <div id="an-thumbs" class="thumbs"></div>
-    <p class="note">As fotos ficam só neste celular e não são salvas: se fechar o app, escolha de novo.</p></div>
+    <p class="note">As fotos ficam guardadas só neste celular.</p></div>
    <div class="card"><h3>Seu anúncio</h3>
+    <button class="btn" type="button" id="an-save">Salvar anúncio</button>
     <div class="field"><span class="lbl">Título</span><div class="input"><input id="an-tit" class="txt" readonly value="${esc(anunTitulo())}"></div></div>
-    <div class="field"><span class="lbl" style="display:flex;justify-content:space-between">Descrição (pode editar)<button class="link" type="button" id="an-reset" style="padding:0">Refazer texto</button></span><textarea id="an-desc" rows="12" style="font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--raised);color:var(--ink);resize:vertical">${esc(anunTexto())}</textarea></div>
+    <div class="field"><span class="lbl" style="display:flex;justify-content:space-between">Descrição (pode editar)<button class="link" type="button" id="an-reset" style="padding:0">Refazer texto</button></span><textarea id="an-desc" rows="12" style="font:inherit;font-size:16px;border:1.5px solid var(--line);border-radius:14px;padding:12px;background:var(--raised);color:var(--ink);resize:vertical">${esc(S.anun.descEdit&&S.anun.desc?S.anun.desc:anunTexto())}</textarea></div>
     <div class="btns"><button class="btn sec" type="button" id="an-ctit">Copiar título</button><button class="btn sec" type="button" id="an-cdesc">Copiar descrição</button>
      <button class="btn wide" type="button" id="an-share">Compartilhar fotos + texto</button><button class="btn sec wide" type="button" id="an-stxt">Compartilhar só o texto</button>
      <p class="note" style="grid-column:1/-1;margin:0">As fotos vão juntas e o texto já fica copiado: quando as fotos chegarem na conversa, toque e segure no campo de mensagem e cole. Assim o texto vai uma vez só.</p><button class="btn ghost wide" type="button" id="an-capa">Gerar capa com preço</button></div></div>
@@ -896,8 +907,15 @@ function copiar(t,msg){const ok=()=>toast(msg);(navigator.clipboard&&navigator.c
 $("anunBody").addEventListener("click",async e=>{const b=e.target.closest("button");if(!b)return;const a=S.anun,d=b.dataset;
   const tog=(k,v)=>{a[k]=(a[k]||[]).includes(v)?a[k].filter(x=>x!==v):[...(a[k]||[]),v];b.setAttribute("aria-pressed",String(a[k].includes(v)));};
   if(d.cond)tog("cond",d.cond);else if(d.opc)tog("opc",d.opc);else if(d.cambio){a.cambio=a.cambio===d.cambio?"":d.cambio;b.parentNode.querySelectorAll(".chip").forEach(x=>x.setAttribute("aria-pressed",String(x.dataset.cambio===a.cambio)));}
-  else if(d.fl!=null||d.fr!=null||d.fx!=null){const i=+(d.fl??d.fr??d.fx);if(d.fx!=null){URL.revokeObjectURL(FOTOS[i].url);FOTOS.splice(i,1);}else{const j=d.fl!=null?i-1:i+1;if(j>=0&&j<FOTOS.length)[FOTOS[i],FOTOS[j]]=[FOTOS[j],FOTOS[i]];}renderThumbs();return;}
+  else if(d.fl!=null||d.fr!=null||d.fx!=null){const i=+(d.fl??d.fr??d.fx);if(d.fx!=null){URL.revokeObjectURL(FOTOS[i].url);FOTOS.splice(i,1);}else{const j=d.fl!=null?i-1:i+1;if(j>=0&&j<FOTOS.length)[FOTOS[i],FOTOS[j]]=[FOTOS[j],FOTOS[i]];}renderThumbs();idbPut("draft",FOTOS.map(f=>f.blob));return;}
   else if(b.id==="an-stxt"){const text=$("an-tit").value+"\n\n"+$("an-desc").value;if(navigator.share){try{await navigator.share({text});}catch(x){}}else copiar(text,"Texto copiado");return;}
+  else if(b.id==="an-save"){const id=Date.now();const ex=S.anSalvos.find(x=>x.troca.codigo===S.troca.codigo&&x.troca.nome===S.troca.nome&&x.titulo===$("an-tit").value);
+    const reg={id:ex?ex.id:id,titulo:$("an-tit").value,data:new Date().toLocaleDateString("pt-BR"),preco:S.anun.preco||anunPreco().sug,nFotos:FOTOS.length,anun:JSON.parse(JSON.stringify({...S.anun,desc:$("an-desc").value,descEdit:true})),troca:JSON.parse(JSON.stringify(S.troca))};
+    await idbPut("ad:"+reg.id,FOTOS.map(f=>f.blob));S.anSalvos=[reg,...S.anSalvos.filter(x=>x.id!==reg.id)];S.anun.descEdit=true;S.anun.desc=reg.anun.desc;persist();renderAnun();toast(ex?"Anúncio atualizado":"Anúncio salvo");return;}
+  else if(d.abrir){const r=S.anSalvos.find(x=>String(x.id)===d.abrir);if(!r)return;S.anun=JSON.parse(JSON.stringify(r.anun));if(!S.troca.nome||S.troca.nome!==r.troca.nome)S.troca=JSON.parse(JSON.stringify(r.troca));
+    FOTOS.forEach(f=>URL.revokeObjectURL(f.url));FOTOS=await fotosDe(await idbGet("ad:"+r.id));idbPut("draft",FOTOS.map(f=>f.blob));persist();renderAnun();window.scrollTo({top:0});toast("Anúncio aberto");return;}
+  else if(d.apagar){const r=S.anSalvos.find(x=>String(x.id)===d.apagar);if(!r||!confirmar(b))return;S.anSalvos=S.anSalvos.filter(x=>x!==r);idbDel("ad:"+r.id);persist();renderAnun();toast("Anúncio apagado");return;}
+  else if(d.novo!=null){if(!confirmar(b))return;S.anun={...DEF.anun};FOTOS.forEach(f=>URL.revokeObjectURL(f.url));FOTOS=[];idbPut("draft",[]);persist();renderAnun();toast("Anúncio em branco");return;}
   else if(b.id==="an-reset"){a.descEdit=false;persist();$("an-desc").value=anunTexto();toast("Texto refeito");return;}
   else if(b.id==="an-ctit"){copiar($("an-tit").value,"Título copiado");return;}
   else if(b.id==="an-cdesc"){copiar($("an-desc").value,"Descrição copiada");return;}
@@ -910,9 +928,10 @@ $("anunBody").addEventListener("click",async e=>{const b=e.target.closest("butto
     else if(navigator.share&&!files.length){try{await navigator.share({text});}catch(x){}}
     else{copiar(text,"Texto copiado. Baixando as fotos…");files.forEach((f,i)=>setTimeout(()=>baixar(f),i*400));}return;}
   else return;persist();anunRefresh();});
-$("anunBody").addEventListener("input",e=>{const a=S.anun,id=e.target.id;if(id==="an-km")a.km=parse(e.target.value);else if(id==="an-cor")a.cor=e.target.value;else if(id==="an-extra")a.extra=e.target.value;else if(id==="an-preco")a.preco=parse(e.target.value);else if(id==="an-desc"){a.descEdit=true;persist();return;}else return;persist();anunRefresh();});
+$("anunBody").addEventListener("input",e=>{const a=S.anun,id=e.target.id;if(id==="an-km")a.km=parse(e.target.value);else if(id==="an-cor")a.cor=e.target.value;else if(id==="an-extra")a.extra=e.target.value;else if(id==="an-preco")a.preco=parse(e.target.value);else if(id==="an-desc"){a.descEdit=true;a.desc=e.target.value;persist();return;}else return;persist();anunRefresh();});
 $("anunBody").addEventListener("change",async e=>{if(e.target.id!=="an-fotos")return;const fs=[...e.target.files].slice(0,20-FOTOS.length);toast(`Preparando ${fs.length} foto${fs.length>1?"s":""}…`);
-  for(const f of fs){try{FOTOS.push(await encolhe(f));}catch(x){}}e.target.value="";renderThumbs();});
+  for(const f of fs){try{FOTOS.push(await encolhe(f));}catch(x){}}e.target.value="";renderThumbs();idbPut("draft",FOTOS.map(f=>f.blob));
+  try{navigator.storage&&navigator.storage.persist&&navigator.storage.persist();}catch(x){}});
 /* ---------- comparar modelos ---------- */
 function ccVals(){const c=S.cc;return {entrada:c.entrada||S.prop.entrada||S.my.cash||0,troca:S.temTroca?(c.troca||(S.prop.aval+S.prop.bonus)||Math.round((S.troca.fipe||0)*0.9)):0,n:c.n||S.prop.n||36,taxa:c.taxa||S.my.mkt||D.taxas.mensal_pct||1.97};}
 function usoDe(car){const n=norm(car.nome||""),base=D.modelos.padrao||FB.modelos.padrao,hit=(D.modelos.modelos||[]).find(m=>m.chaves.some(k=>n.includes(norm(k)))),src=hit||base,f=car.fipe||0;
